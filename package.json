@@ -1,0 +1,14 @@
+{
+  "name": "co2-dashboard-customer-service",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "test:calculator:parity": "node scripts/calculator-tests/test-calculator-parity.js",
+    "test:calculator:fields": "node scripts/calculator-tests/test-calculator-fields.js",
+    "test:calculator:scenarios": "node scripts/calculator-tests/test-calculator-scenarios.js",
+    "test:calculator:combinations": "node scripts/calculator-tests/test-calculator-core-combinations.js",
+    "test:calculator:fuzz": "node scripts/calculator-tests/test-calculator-fuzz.js",
+    "test:calculator:summary": "node scripts/calculator-tests/build-calculator-test-summary.js",
+    "test:calculator:all": "npm run test:calculator:parity && npm run test:calculator:fields && npm run test:calculator:scenarios && npm run test:calculator:combinations && npm run test:calculator:fuzz && npm run test:calculator:summary"
+  }
+}

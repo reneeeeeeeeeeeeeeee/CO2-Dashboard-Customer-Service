@@ -1,0 +1,349 @@
+{
+  "organizations": [
+    {
+      "organization_id": "org_demo",
+      "name": "Demo Support GmbH",
+      "country": "DE",
+      "timezone": "Europe/Berlin",
+      "default_grid_factor_kg_per_kwh": 0.363,
+      "default_language": "de"
+    }
+  ],
+  "assumption_sets": [
+    {
+      "assumption_set_id": "assump_de_2026_01",
+      "effective_from": "2026-01-01",
+      "grid_factor_kg_per_kwh": 0.363,
+      "fixed_network_kwh_per_gb": 0.29,
+      "mobile_network_kwh_per_gb": 0.6,
+      "llm_kwh_per_turn": 0.0003,
+      "voice_traffic_gb_per_min": 0.00096,
+      "agent_laptop_power_w": 40,
+      "agent_desktop_power_w": 90,
+      "customer_smartphone_power_w": 5,
+      "customer_laptop_power_w": 30,
+      "storage_kwh_per_gb_month": 0.002,
+      "confidence_level": "medium",
+      "source_reference": "scratch/customer-service-co2-model.md"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "case_1001",
+      "organization_id": "org_demo",
+      "created_at": "2026-04-15T09:01:00Z",
+      "status": "resolved",
+      "channel_origin": "call",
+      "issue_type": "billing",
+      "priority": "normal",
+      "customer_segment": "b2c",
+      "team_id": "billing_team",
+      "queue_id": "billing_queue",
+      "market": "DE",
+      "language": "de",
+      "first_contact_resolved": false,
+      "is_transferred": true
+    },
+    {
+      "case_id": "case_2001",
+      "organization_id": "org_demo",
+      "created_at": "2026-04-15T10:15:00Z",
+      "status": "resolved",
+      "channel_origin": "email",
+      "issue_type": "returns",
+      "priority": "normal",
+      "customer_segment": "b2c",
+      "team_id": "returns_team",
+      "queue_id": "returns_queue",
+      "market": "DE",
+      "language": "de",
+      "first_contact_resolved": false,
+      "is_reopened": true
+    },
+    {
+      "case_id": "case_3001",
+      "organization_id": "org_demo",
+      "created_at": "2026-04-15T11:00:00Z",
+      "status": "resolved",
+      "channel_origin": "chatbot",
+      "issue_type": "order_status",
+      "priority": "low",
+      "customer_segment": "b2c",
+      "team_id": "digital_service",
+      "queue_id": "bot_queue",
+      "market": "DE",
+      "language": "de",
+      "first_contact_resolved": true,
+      "is_bot_resolved": true
+    },
+    {
+      "case_id": "case_4001",
+      "organization_id": "org_demo",
+      "created_at": "2026-04-15T12:00:00Z",
+      "status": "resolved",
+      "channel_origin": "voice_bot",
+      "issue_type": "password_reset",
+      "priority": "normal",
+      "customer_segment": "b2b",
+      "team_id": "auth_team",
+      "queue_id": "voice_auth",
+      "market": "DE",
+      "language": "de",
+      "first_contact_resolved": false
+    }
+  ],
+  "call_interactions": [
+    {
+      "interaction_id": "call_1001",
+      "organization_id": "org_demo",
+      "case_id": "case_1001",
+      "channel": "call",
+      "direction": "inbound",
+      "started_at": "2026-04-15T09:01:00Z",
+      "ended_at": "2026-04-15T09:08:12Z",
+      "duration_seconds": 432,
+      "agent_id": "agent_12",
+      "team_id": "billing_team",
+      "queue_id": "billing_queue",
+      "resolved": true,
+      "handover_occurred": true,
+      "repeat_contact": false,
+      "talk_time_seconds": 300,
+      "queue_time_seconds": 72,
+      "hold_time_seconds": 30,
+      "after_call_work_seconds": 90,
+      "abandoned": false,
+      "callback_requested": false,
+      "transfer_count": 1,
+      "conference_call": false,
+      "auth_time_seconds": 18,
+      "customer_network_type": "mobile",
+      "customer_device_type": "smartphone"
+    }
+  ],
+  "email_interactions": [
+    {
+      "interaction_id": "email_2001",
+      "organization_id": "org_demo",
+      "case_id": "case_2001",
+      "channel": "email",
+      "direction": "inbound",
+      "started_at": "2026-04-15T10:15:00Z",
+      "agent_id": "agent_21",
+      "team_id": "returns_team",
+      "queue_id": "returns_queue",
+      "resolved": false,
+      "repeat_contact": true,
+      "agent_handling_seconds": 240,
+      "message_count_in_thread": 3,
+      "is_reopen_message": true,
+      "is_duplicate_message": false,
+      "reply_time_seconds": 5400,
+      "customer_read_estimate_seconds": 60,
+      "cc_count": 0,
+      "bcc_count": 0,
+      "forward_count": 1,
+      "has_attachment": true,
+      "attachment_count": 2,
+      "attachment_total_gb": 0.018,
+      "storage_gb": 0.018,
+      "retention_months": 12,
+      "delivery_failure": false,
+      "resent": false
+    }
+  ],
+  "bot_sessions": [
+    {
+      "bot_session_id": "bot_3001",
+      "organization_id": "org_demo",
+      "case_id": "case_3001",
+      "channel": "chatbot",
+      "bot_type": "llm",
+      "bot_version": "v1.2",
+      "model_class": "gpt-4o-like",
+      "started_at": "2026-04-15T11:00:00Z",
+      "duration_seconds": 210,
+      "turn_count": 6,
+      "customer_messages": 3,
+      "bot_messages": 3,
+      "llm_turn_count": 6,
+      "retrieval_requests": 2,
+      "tool_calls": 0,
+      "attachment_upload_gb": 0,
+      "authenticated": false,
+      "resolved": true,
+      "escalated_to_human": false,
+      "handover_target": "none",
+      "repeat_bot_session": false,
+      "drop_off": false,
+      "deflected_channel": "call"
+    }
+  ],
+  "voice_bot_sessions": [
+    {
+      "voice_bot_session_id": "vbot_4001",
+      "organization_id": "org_demo",
+      "case_id": "case_4001",
+      "started_at": "2026-04-15T12:00:00Z",
+      "duration_seconds": 168,
+      "resolved": false,
+      "asr_seconds": 52,
+      "tts_seconds": 38,
+      "ivr_path_depth": 4,
+      "retry_loop_count": 2,
+      "intent_recognition_failure": true,
+      "authentication_attempts": 2,
+      "authentication_failure": false,
+      "transferred_to_agent": true,
+      "callback_scheduled": false,
+      "llm_enabled": true,
+      "llm_turn_count": 3
+    }
+  ],
+  "attachments": [
+    {
+      "attachment_id": "att_2001_1",
+      "case_id": "case_2001",
+      "interaction_id": "email_2001",
+      "channel": "email",
+      "size_gb": 0.01,
+      "file_type": "pdf",
+      "uploaded_at": "2026-04-15T10:15:00Z",
+      "download_count": 1,
+      "stored_months": 12
+    },
+    {
+      "attachment_id": "att_2001_2",
+      "case_id": "case_2001",
+      "interaction_id": "email_2001",
+      "channel": "email",
+      "size_gb": 0.008,
+      "file_type": "jpg",
+      "uploaded_at": "2026-04-15T10:15:00Z",
+      "download_count": 1,
+      "stored_months": 12
+    }
+  ],
+  "callbacks": [
+    {
+      "callback_id": "cb_1002",
+      "case_id": "case_1001",
+      "requested_at": "2026-04-15T09:03:00Z",
+      "scheduled_at": "2026-04-15T09:45:00Z",
+      "attempt_count": 2,
+      "successful": true,
+      "failed_reason": "no_answer",
+      "total_callback_seconds": 260,
+      "followup_required": false
+    }
+  ],
+  "transfers": [
+    {
+      "transfer_id": "tr_1001",
+      "case_id": "case_1001",
+      "interaction_id": "call_1001",
+      "from_team": "frontline_team",
+      "to_team": "billing_team",
+      "reason": "billing_specialist_required",
+      "warm_transfer": true,
+      "handover_seconds": 25
+    }
+  ],
+  "escalations": [
+    {
+      "escalation_id": "esc_2001",
+      "case_id": "case_2001",
+      "level_from": "L1",
+      "level_to": "L2",
+      "created_at": "2026-04-15T10:25:00Z",
+      "reason": "return_policy_exception",
+      "resolved_at": "2026-04-15T13:40:00Z"
+    }
+  ],
+  "agent_activities": [
+    {
+      "activity_id": "act_1001",
+      "agent_id": "agent_12",
+      "activity_type": "after_call_work",
+      "duration_seconds": 90,
+      "case_id": "case_1001",
+      "interaction_id": "call_1001",
+      "system_count": 2,
+      "ai_assist_used": false,
+      "notes_created": 1
+    },
+    {
+      "activity_id": "act_2001",
+      "agent_id": "agent_21",
+      "activity_type": "documentation",
+      "duration_seconds": 120,
+      "case_id": "case_2001",
+      "interaction_id": "email_2001",
+      "system_count": 3,
+      "ai_assist_used": true,
+      "notes_created": 2
+    }
+  ],
+  "knowledge_usage": [
+    {
+      "knowledge_usage_id": "ku_3001",
+      "source_type": "faq_search",
+      "case_id": "case_3001",
+      "session_id": "bot_3001",
+      "search_count": 1,
+      "article_views": 1,
+      "article_resolved": true,
+      "failed_search": false,
+      "escalated_after_search": false
+    }
+  ],
+  "aggregated_metrics": [
+    {
+      "record_id": "agg_2026_04_calls_billing",
+      "organization_id": "org_demo",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "channel": "call",
+      "team_id": "billing_team",
+      "queue_id": "billing_queue",
+      "market": "DE",
+      "country": "DE",
+      "contacts": 120000,
+      "resolved_cases": 102500,
+      "avg_handle_time_seconds": 372,
+      "avg_queue_time_seconds": 84,
+      "avg_hold_time_seconds": 42,
+      "callback_retry_attempts": 2800
+    },
+    {
+      "record_id": "agg_2026_04_email_returns",
+      "organization_id": "org_demo",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "channel": "email",
+      "team_id": "returns_team",
+      "queue_id": "returns_queue",
+      "market": "DE",
+      "country": "DE",
+      "contacts": 420000,
+      "resolved_cases": 310000,
+      "reopened_cases": 42000,
+      "attachments_sent": 86000,
+      "attachment_total_gb": 860
+    },
+    {
+      "record_id": "agg_2026_04_bot_digital",
+      "organization_id": "org_demo",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "channel": "chatbot",
+      "team_id": "digital_service",
+      "market": "DE",
+      "country": "DE",
+      "contacts": 300000,
+      "resolved_cases": 126000,
+      "bot_resolved_sessions": 126000,
+      "bot_escalated_sessions": 138000
+    }
+  ]
+}

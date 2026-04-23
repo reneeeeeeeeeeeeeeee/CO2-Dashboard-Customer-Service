@@ -1,0 +1,3 @@
+period_start,period_end,team_id,country,channel,contacts,bot_resolved_sessions,bot_escalated_sessions,avg_turn_count,active_agent_count,scheduled_hours,productive_hours,contact_driver_group
+2026-04-01,2026-04-30,digital_service,DE,chatbot,300000,126000,138000,6.4,28,4100,2910,shipping
+2026-04-01,2026-04-30,digital_service,DE,chatbot,90000,38000,33000,5.1,28,4100,2910,billing

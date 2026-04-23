@@ -1,0 +1,32 @@
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors
+.idea/
+.vscode/
+
+# Dependency and build output
+node_modules/
+dist/
+build/
+out/
+coverage/
+
+# Test output
+playwright-report/
+test-results/
+reports/
+
+# Local research and scratch material
+notcommit/
+.claude/
+
+# Logs
+*.log
+
+# Local environment files
+.env
+.env.*
+!.env.example

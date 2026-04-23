@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Service CO2 Dashboard Demo</title>
+  <style>
+    :root {
+      --bg: #f4f0e8;
+      --panel: rgba(255, 250, 243, 0.86);
+      --panel-strong: rgba(255, 248, 237, 0.95);
+      --ink: #1f2e29;
+      --muted: #68756e;
+      --line: rgba(31, 46, 41, 0.12);
+      --accent: #0a7d61;
+      --accent-2: #d8693f;
+      --call: #c96b3b;
+      --email: #c6a04c;
+      --chatbot: #2f8c72;
+      --voice: #496bb7;
+      --shadow: 0 24px 60px rgba(45, 41, 33, 0.10);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Aptos", "Segoe UI Variable Text", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(61, 106, 179, 0.10), transparent 28%),
+        radial-gradient(circle at top right, rgba(216, 105, 63, 0.12), transparent 25%),
+        linear-gradient(180deg, #f8f4ed 0%, var(--bg) 58%, #eee4d3 100%);
+      min-height: 100vh;
+    }
+    .shell { width: min(1400px, calc(100% - 40px)); margin: 24px auto 40px; }
+    .hero { display: grid; grid-template-columns: 1.35fr 0.95fr; gap: 18px; margin-bottom: 18px; }
+    .hero-card, .panel, .metric-card, .table-card, .chart-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero-card {
+      border-radius: var(--radius-xl);
+      padding: 28px 30px;
+      position: relative;
+      overflow: hidden;
+      min-height: 250px;
+    }
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -50px -70px auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(10, 125, 97, 0.16) 0%, rgba(10, 125, 97, 0) 72%);
+      pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.54);
+      color: var(--muted);
+      border: 1px solid rgba(31, 46, 41, 0.08);
+    }
+    h1 {
+      margin: 18px 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 0.98;
+      letter-spacing: -0.03em;
+      max-width: 10ch;
+    }
+    .hero-copy { max-width: 58ch; color: var(--muted); font-size: 15px; line-height: 1.55; margin-bottom: 18px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 13px; }
+    .hero-meta strong { color: var(--ink); }
+    .side-summary { border-radius: var(--radius-xl); padding: 24px; display: grid; gap: 14px; align-content: start; }
+    .summary-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .summary-value { font-size: 46px; line-height: 0.95; font-weight: 700; letter-spacing: -0.04em; }
+    .summary-caption { margin-top: 6px; color: var(--muted); font-size: 13px; }
+    .delta-pill {
+      white-space: nowrap; padding: 9px 12px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.65); border: 1px solid rgba(31, 46, 41, 0.08);
+      font-size: 13px; color: var(--accent); font-weight: 700;
+    }
+    .insight-stack { display: grid; gap: 10px; }
+    .insight { padding: 14px 16px; border-radius: var(--radius-md); background: var(--panel-strong); border: 1px solid var(--line); }
+    .insight-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .insight strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 18px; }
+    .tab {
+      border: 1px solid rgba(31, 46, 41, 0.12); background: rgba(255, 255, 255, 0.62);
+      color: var(--muted); padding: 11px 15px; border-radius: 999px; cursor: pointer;
+      transition: 0.2s ease; font-size: 14px; font-weight: 600;
+    }
+    .tab.active, .tab:hover {
+      color: white; background: linear-gradient(135deg, #245b85 0%, #0a7d61 100%);
+      border-color: transparent; transform: translateY(-1px);
+    }
+    .flow-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 0 0 18px;
+    }
+    .flow-card {
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(31, 46, 41, 0.10);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    .flow-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      border-color: rgba(10, 125, 97, 0.24);
+    }
+    .flow-step {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .flow-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+    .flow-copy {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .page-intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 0 0 14px;
+      padding: 16px 18px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.60);
+      border: 1px solid rgba(31, 46, 41, 0.08);
+    }
+    .page-intro strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 4px;
+      letter-spacing: -0.03em;
+    }
+    .page-intro span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .metric-card { border-radius: var(--radius-lg); padding: 18px; min-height: 124px; }
+    .metric-label { color: var(--muted); font-size: 13px; margin-bottom: 14px; display: flex; justify-content: space-between; gap: 10px; }
+    .metric-value { font-size: 30px; line-height: 1; font-weight: 700; letter-spacing: -0.04em; margin-bottom: 10px; }
+    .metric-delta { display: inline-flex; gap: 8px; font-size: 13px; color: var(--muted); }
+    .metric-delta strong { color: var(--accent); }
+    .content-grid { display: grid; grid-template-columns: 1.25fr 0.95fr; gap: 18px; }
+    .content-column { display: grid; gap: 18px; align-content: start; }
+    .chart-card, .table-card, .panel { border-radius: var(--radius-xl); padding: 22px; }
+    .section-title { margin: 0 0 6px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .card-title { margin: 0 0 16px; font-size: 24px; line-height: 1.1; letter-spacing: -0.03em; }
+    .card-copy { margin: 0 0 18px; color: var(--muted); line-height: 1.55; font-size: 14px; }
+    .bars { display: grid; gap: 12px; }
+    .bar-row { display: grid; grid-template-columns: 130px 1fr 84px; gap: 12px; align-items: center; font-size: 14px; }
+    .bar-label { color: var(--ink); font-weight: 600; }
+    .bar-track { background: rgba(31, 46, 41, 0.08); border-radius: 999px; overflow: hidden; height: 12px; }
+    .bar-fill { height: 100%; border-radius: 999px; min-width: 6px; }
+    .bar-fill.call { background: linear-gradient(90deg, #d98654 0%, var(--call) 100%); }
+    .bar-fill.email { background: linear-gradient(90deg, #e0c06b 0%, var(--email) 100%); }
+    .bar-fill.chatbot { background: linear-gradient(90deg, #4db195 0%, var(--chatbot) 100%); }
+    .bar-fill.voice_bot { background: linear-gradient(90deg, #7390d0 0%, var(--voice) 100%); }
+    .bar-fill.positive { background: linear-gradient(90deg, #55ba89 0%, #0a7d61 100%); }
+    .bar-fill.warning { background: linear-gradient(90deg, #f0a85d 0%, #d8693f 100%); }
+    .bar-value { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+    .breakdown-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .mini-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .breakdown-item { background: rgba(255, 255, 255, 0.58); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 14px; }
+    .breakdown-item strong { display: block; font-size: 24px; margin: 8px 0 4px; letter-spacing: -0.04em; }
+    .breakdown-item span { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 0; border-bottom: 1px solid rgba(31, 46, 41, 0.08); font-size: 14px; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .pill { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; font-size: 12px; border: 1px solid rgba(31, 46, 41, 0.10); background: rgba(255, 255, 255, 0.66); }
+    .pill.medium_high, .pill.high { color: var(--accent); background: rgba(10, 125, 97, 0.10); }
+    .pill.medium, .pill.low_medium { color: #8d5a25; background: rgba(216, 105, 63, 0.10); }
+    .driver-negative { color: var(--accent); font-weight: 700; }
+    .driver-positive { color: var(--accent-2); font-weight: 700; }
+    .hidden { display: none; }
+    .method-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .flag-list, .meta-list { display: grid; gap: 10px; }
+    .flag-row, .meta-row { display: flex; justify-content: space-between; gap: 18px; padding: 12px 0; border-bottom: 1px solid rgba(31, 46, 41, 0.08); font-size: 14px; }
+    .flag-row span:first-child, .meta-row span:first-child { color: var(--muted); }
+    .footer-note { margin-top: 18px; color: var(--muted); font-size: 13px; line-height: 1.5; padding: 14px 18px; border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.58); border: 1px solid rgba(31, 46, 41, 0.08); }
+    @media (max-width: 1180px) {
+      .hero, .content-grid, .method-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 20px, 1400px); margin-top: 12px; }
+      .hero-card, .side-summary, .chart-card, .table-card, .panel, .metric-card { padding: 18px; }
+      .metrics-grid, .breakdown-grid, .mini-grid, .method-grid, .flow-strip { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 100px 1fr 64px; }
+      .page-intro { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="eyebrow">Reference Demo • Operational CO2 Layer</div>
+        <h1>Customer Service Impact Dashboard</h1>
+        <p class="hero-copy">
+          A reference dashboard for customer service reporting with an estimated CO2 layer.
+          The demo keeps service KPIs primary and makes digital load visible through calls, email, chatbots, voice bots, workforce structure, and root causes behind contact demand.
+        </p>
+        <div class="hero-meta">
+          <span><strong id="meta-period">April 2026</strong> reporting period</span>
+          <span><strong id="meta-boundary">Provider + Customer</strong> boundary</span>
+          <span><strong id="meta-assumptions">assump_de_2026_01</strong> assumption set</span>
+        </div>
+      </div>
+      <aside class="side-summary hero-card">
+        <div class="summary-top">
+          <div>
+            <div class="section-title">Estimated Total CO2e</div>
+            <div class="summary-value" id="summary-co2">1,240 kg</div>
+            <div class="summary-caption">Across all modeled customer service channels in the selected period.</div>
+          </div>
+          <div class="delta-pill" id="summary-delta">-9% vs baseline</div>
+        </div>
+        <div class="insight-stack">
+          <div class="insight">
+            <div class="insight-label">Root Cause Priority</div>
+            <strong id="insight-load">Preventable contact demand</strong>
+            <span id="insight-load-copy">412 kg CO2e sits in preventable driver groups.</span>
+          </div>
+          <div class="insight">
+            <div class="insight-label">Top Driver Group</div>
+            <strong id="insight-win">Billing</strong>
+            <span id="insight-win-copy">Highest-impact normalized driver group in the current month.</span>
+          </div>
+          <div class="insight">
+            <div class="insight-label">Biggest Channel Win</div>
+            <strong id="insight-watch">Chatbot call deflection</strong>
+            <span id="insight-watch-copy">Avoided 108 kg CO2e versus human-only handling.</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="flow-strip" id="flow-strip">
+      <article class="flow-card" data-view-target="overview">
+        <div class="flow-step">Step 1</div>
+        <div class="flow-title">Overview</div>
+        <div class="flow-copy">Start with total impact, biggest avoidable load, and the primary strategic signals.</div>
+      </article>
+      <article class="flow-card" data-view-target="root_causes">
+        <div class="flow-step">Step 2</div>
+        <div class="flow-title">Root Causes</div>
+        <div class="flow-copy">Understand why contacts happen and which demand is preventable before optimizing channels.</div>
+      </article>
+      <article class="flow-card" data-view-target="calls">
+        <div class="flow-step">Step 3</div>
+        <div class="flow-title">Channels</div>
+        <div class="flow-copy">Move into calls, email, bots, and see how specific handling patterns create digital load.</div>
+      </article>
+      <article class="flow-card" data-view-target="workforce">
+        <div class="flow-step">Step 4</div>
+        <div class="flow-title">Advanced</div>
+        <div class="flow-copy">Use workforce and methodology views when you need structural interpretation or validation.</div>
+      </article>
+    </section>
+
+    <nav class="tabs" id="tabs"></nav>
+
+    <main id="views">
+      <section class="view" data-view="overview">
+        <div class="page-intro">
+          <div>
+            <strong>Question answered here</strong>
+            <span>What is driving customer service impact right now, and is the bigger opportunity in channels, demand, or automation?</span>
+          </div>
+        </div>
+        <div class="metrics-grid" id="overview-metrics"></div>
+        <div class="content-grid">
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Channel Mix</div>
+              <h2 class="card-title">Contacts by channel</h2>
+              <p class="card-copy">Volume shows where support work happens. It does not automatically predict impact, but it sets the operating context.</p>
+              <div class="bars" id="contacts-bars"></div>
+            </article>
+            <article class="chart-card">
+              <div class="section-title">Impact Layer</div>
+              <h2 class="card-title">Estimated CO2e by channel</h2>
+              <p class="card-copy">The same operation can have a different impact profile once duration, network load, storage, and automation behavior are added.</p>
+              <div class="bars" id="co2-bars"></div>
+            </article>
+          </div>
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Root-Cause Priorities</div>
+              <h2 class="card-title">Where avoidable load accumulates</h2>
+              <p class="card-copy">The strongest product signal is not just channel inefficiency. It is the business-side contact demand that keeps creating avoidable service load.</p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Driver</th>
+                    <th>Channel</th>
+                    <th>Impact</th>
+                  </tr>
+                </thead>
+                <tbody id="drivers-table"></tbody>
+              </table>
+            </article>
+            <article class="chart-card">
+              <div class="section-title">Root-Cause Momentum</div>
+              <h2 class="card-title">Change versus baseline</h2>
+              <p class="card-copy">Operational improvement matters, but the stronger strategic question is whether preventable demand and its driver groups are shrinking over time.</p>
+              <div class="breakdown-grid" id="baseline-grid"></div>
+            </article>
+            <article class="chart-card">
+              <div class="section-title">Strategic Levers</div>
+              <h2 class="card-title">Demand before handling</h2>
+              <p class="card-copy">This is where the product moves beyond channel reporting. It connects avoidable contact demand to the teams and channels absorbing that load.</p>
+              <div class="mini-grid">
+                <div class="breakdown-item">
+                  <span>Preventable Load</span>
+                  <strong id="overview-root-value">412 kg</strong>
+                  <div id="overview-root-copy">Preventable contact load across top drivers.</div>
+                </div>
+                <div class="breakdown-item">
+                  <span>Workforce Signal</span>
+                  <strong id="overview-workforce-value">5.9 kg</strong>
+                  <div id="overview-workforce-copy">Estimated CO2e per active agent.</div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="view hidden" data-view="calls">
+        <div class="page-intro">
+          <div>
+            <strong>Question answered here</strong>
+            <span>How much avoidable digital load is created inside the call workflow through queue time, hold, retries, and after-call work?</span>
+          </div>
+        </div>
+        <div class="metrics-grid" id="calls-metrics"></div>
+        <div class="content-grid">
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Call Journey</div>
+              <h2 class="card-title">Where call load is created</h2>
+              <p class="card-copy">Calls become more carbon-intensive when time shifts from resolution into queue, hold, retries, and after-call work.</p>
+              <div class="bars" id="call-breakdown"></div>
+            </article>
+            <article class="table-card">
+              <div class="section-title">Operational Snapshot</div>
+              <h2 class="card-title">Call metrics</h2>
+              <table><tbody id="calls-detail-table"></tbody></table>
+            </article>
+          </div>
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Impact Drivers</div>
+              <h2 class="card-title">Avoidable call CO2e</h2>
+              <div class="breakdown-grid" id="call-impact-grid"></div>
+            </article>
+            <article class="panel">
+              <div class="section-title">Interpretation</div>
+              <h2 class="card-title">What to improve first</h2>
+              <p class="card-copy" id="calls-copy"></p>
+              <div class="footer-note">Queue time and callback retries are pure friction costs in the model. Lowering them improves customer experience and cuts estimated digital load at the same time.</div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="view hidden" data-view="email">
+        <div class="page-intro">
+          <div>
+            <strong>Question answered here</strong>
+            <span>Are email-related emissions driven by simple volume, by reopen loops, or by heavy attachments and storage?</span>
+          </div>
+        </div>
+        <div class="metrics-grid" id="email-metrics"></div>
+        <div class="content-grid">
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Email Drivers</div>
+              <h2 class="card-title">Handling, reopen, attachments</h2>
+              <p class="card-copy">Email impact does not come from transmission alone. Handling loops and attachments often dominate the real operational picture.</p>
+              <div class="bars" id="email-breakdown"></div>
+            </article>
+            <article class="table-card">
+              <div class="section-title">Operational Snapshot</div>
+              <h2 class="card-title">Email metrics</h2>
+              <table><tbody id="email-detail-table"></tbody></table>
+            </article>
+          </div>
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Impact Breakdown</div>
+              <h2 class="card-title">Attachment and storage burden</h2>
+              <div class="breakdown-grid" id="email-impact-grid"></div>
+            </article>
+            <article class="panel">
+              <div class="section-title">Interpretation</div>
+              <h2 class="card-title">What to improve first</h2>
+              <p class="card-copy" id="email-copy"></p>
+              <div class="footer-note">In this reference model, reducing reopen loops and controlling large attachments produces a cleaner gain than focusing on email transmission alone.</div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="view hidden" data-view="chatbot">
+        <div class="page-intro">
+          <div>
+            <strong>Question answered here</strong>
+            <span>Is automation creating net value, or are failed bot journeys adding overhead before human handling still happens?</span>
+          </div>
+        </div>
+        <div class="metrics-grid" id="chatbot-metrics"></div>
+        <div class="content-grid">
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Session Outcomes</div>
+              <h2 class="card-title">Containment versus escalation</h2>
+              <p class="card-copy">Automation creates value only when sessions stay short and successful. Failed bot journeys can add overhead before a human touch still happens.</p>
+              <div class="bars" id="chatbot-breakdown"></div>
+            </article>
+            <article class="table-card">
+              <div class="section-title">Automation Snapshot</div>
+              <h2 class="card-title">Chatbot metrics</h2>
+              <table><tbody id="chatbot-detail-table"></tbody></table>
+            </article>
+          </div>
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Net Effect</div>
+              <h2 class="card-title">Automation impact</h2>
+              <div class="breakdown-grid" id="chatbot-impact-grid"></div>
+            </article>
+            <article class="panel">
+              <div class="section-title">Interpretation</div>
+              <h2 class="card-title">What to improve first</h2>
+              <p class="card-copy" id="chatbot-copy"></p>
+              <div class="footer-note">The dashboard treats chatbot CO2 as an operating cost, then subtracts avoided call and email load where deflection is successful.</div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="view hidden" data-view="voice_bot">
+        <div class="page-intro">
+          <div>
+            <strong>Question answered here</strong>
+            <span>Is voice automation resolving quickly enough, or are retry loops and handovers making it structurally expensive?</span>
+          </div>
+        </div>
+        <div class="metrics-grid" id="voice-metrics"></div>
+        <div class="content-grid">
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Voice Automation</div>
+              <h2 class="card-title">Retry loops and handovers</h2>
+              <p class="card-copy">Voice automation is useful when it resolves quickly. Retry loops and transfers to agents create extra digital and telephony load.</p>
+              <div class="bars" id="voice-breakdown"></div>
+            </article>
+            <article class="table-card">
+              <div class="section-title">Automation Snapshot</div>
+              <h2 class="card-title">Voice bot metrics</h2>
+              <table><tbody id="voice-detail-table"></tbody></table>
+            </article>
+          </div>
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Impact Breakdown</div>
+              <h2 class="card-title">Where the voice bot loses efficiency</h2>
+              <div class="breakdown-grid" id="voice-impact-grid"></div>
+            </article>
+            <article class="panel">
+              <div class="section-title">Interpretation</div>
+              <h2 class="card-title">What to improve first</h2>
+              <p class="card-copy" id="voice-copy"></p>
+              <div class="footer-note">The voice-bot model should be treated as lower confidence unless retry loops, handovers, and AI usage are measured clearly.</div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="view hidden" data-view="cases">
+        <div class="page-intro">
+          <div>
+            <strong>Question answered here</strong>
+            <span>What do repeat contacts, escalations, and transfers reveal when you look across channels at case level?</span>
+          </div>
+        </div>
+        <div class="metrics-grid" id="cases-metrics"></div>
+        <div class="content-grid">
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Case Quality</div>
+              <h2 class="card-title">Case-level avoidable load</h2>
+              <p class="card-copy">Repeated contacts, transfers, and escalations create the same kind of waste regardless of channel. This view reads the operation at case level.</p>
+              <div class="bars" id="cases-breakdown"></div>
+            </article>
+          </div>
+          <div class="content-column">
+            <article class="panel">
+              <div class="section-title">Interpretation</div>
+              <h2 class="card-title">What to improve first</h2>
+              <p class="card-copy" id="cases-copy"></p>
+              <div class="footer-note">Case-level reporting is where customer service leaders can link quality and sustainability without changing their basic management vocabulary.</div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="view hidden" data-view="workforce">
+        <div class="page-intro">
+          <div>
+            <strong>Advanced question answered here</strong>
+            <span>How much of the impact is driven by staffing structure, channel allocation, and productive-hours intensity rather than customer demand alone?</span>
+          </div>
+        </div>
+        <div class="metrics-grid" id="workforce-metrics"></div>
+        <div class="content-grid">
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Advanced Workforce Analysis</div>
+              <h2 class="card-title">CO2e per agent by team</h2>
+              <p class="card-copy">This view separates operational impact driven by contact demand from impact driven by staffing structure and channel allocation.</p>
+              <div class="bars" id="workforce-breakdown"></div>
+            </article>
+            <article class="table-card">
+              <div class="section-title">Workforce Snapshot</div>
+              <h2 class="card-title">Team comparison</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Team</th>
+                    <th>Channel</th>
+                    <th>Agents</th>
+                    <th>Occupancy</th>
+                    <th>CO2e / Agent</th>
+                  </tr>
+                </thead>
+                <tbody id="workforce-table"></tbody>
+              </table>
+            </article>
+          </div>
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Productivity</div>
+              <h2 class="card-title">Hours and intensity</h2>
+              <div class="breakdown-grid" id="workforce-impact-grid"></div>
+            </article>
+            <article class="panel">
+              <div class="section-title">Interpretation</div>
+              <h2 class="card-title">What to improve first</h2>
+              <p class="card-copy" id="workforce-copy"></p>
+              <div class="footer-note">The workforce view makes it possible to see whether impact is rising because the team is handling more customer demand or because specific channels are structurally more expensive per productive hour.</div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="view hidden" data-view="root_causes">
+        <div class="page-intro">
+          <div>
+            <strong>Question answered here</strong>
+            <span>Why are customers contacting support in the first place, and which normalized driver groups create preventable digital load?</span>
+          </div>
+        </div>
+        <div class="metrics-grid" id="root-cause-metrics"></div>
+        <div class="content-grid">
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Driver Groups</div>
+              <h2 class="card-title">CO2e by contact driver group</h2>
+              <p class="card-copy">This view explains why contacts exist in the first place. It is the bridge from channel reporting to root-cause improvement.</p>
+              <div class="bars" id="root-cause-breakdown"></div>
+            </article>
+            <article class="table-card">
+              <div class="section-title">Top Drivers</div>
+              <h2 class="card-title">Highest-impact contact reasons</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Source</th>
+                    <th>Driver</th>
+                    <th>Group</th>
+                    <th>Preventable</th>
+                    <th>CO2e</th>
+                  </tr>
+                </thead>
+                <tbody id="root-cause-table"></tbody>
+              </table>
+            </article>
+            <article class="table-card">
+              <div class="section-title">Taxonomy Mapping</div>
+              <h2 class="card-title">Source to normalized drivers</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Source Label</th>
+                    <th>Normalized</th>
+                    <th>Level 1</th>
+                    <th>Level 2</th>
+                  </tr>
+                </thead>
+                <tbody id="taxonomy-table"></tbody>
+              </table>
+            </article>
+          </div>
+          <div class="content-column">
+            <article class="chart-card">
+              <div class="section-title">Preventable Load</div>
+              <h2 class="card-title">Where to remove demand</h2>
+              <div class="breakdown-grid" id="root-cause-impact-grid"></div>
+            </article>
+            <article class="chart-card">
+              <div class="section-title">Driver Distribution</div>
+              <h2 class="card-title">Which channels and teams absorb root-cause load</h2>
+              <div class="mini-grid">
+                <div>
+                  <p class="card-copy" style="margin-bottom: 12px;">By channel</p>
+                  <div class="bars" id="root-cause-channel-breakdown"></div>
+                </div>
+                <div>
+                  <p class="card-copy" style="margin-bottom: 12px;">By team</p>
+                  <div class="bars" id="root-cause-team-breakdown"></div>
+                </div>
+              </div>
+            </article>
+            <article class="panel">
+              <div class="section-title">Interpretation</div>
+              <h2 class="card-title">What to improve first</h2>
+              <p class="card-copy" id="root-cause-copy"></p>
+              <div class="footer-note">This is where the product becomes strategic: instead of only optimizing channels, a team can identify preventable contact drivers and reduce demand at the source.</div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="view hidden" data-view="methodology">
+        <div class="page-intro">
+          <div>
+            <strong>Question answered here</strong>
+            <span>What assumptions, boundaries, and confidence levels shape the numbers shown in the dashboard?</span>
+          </div>
+        </div>
+        <div class="method-grid">
+          <article class="panel">
+            <div class="section-title">Assumptions</div>
+            <h2 class="card-title">Methodology flags</h2>
+            <div class="flag-list" id="method-flags"></div>
+          </article>
+          <article class="panel">
+            <div class="section-title">Reporting Context</div>
+            <h2 class="card-title">Metadata</h2>
+            <div class="meta-list" id="method-meta"></div>
+          </article>
+        </div>
+        <article class="panel" style="margin-top: 18px;">
+          <div class="section-title">Disclaimer</div>
+          <h2 class="card-title">How to read the numbers</h2>
+          <p class="card-copy">
+            This demo presents activity-based estimates of operational CO2 impact. Values are derived from available customer service data, configurable energy assumptions, and electricity carbon factors.
+            Results are not direct physical measurements and should be interpreted with the stated confidence level and reporting boundary.
+          </p>
+          <div class="footer-note">
+            Recommended wording: “estimated operational CO2 impact”, “activity-based estimate”, and “confidence level”. Avoid claiming precise, certified, or real-time physical emissions.
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script>
+    const fallbackData = {
+      metadata: {
+        organization_id: "org_demo",
+        period_start: "2026-04-01",
+        period_end: "2026-04-30",
+        assumption_set_id: "assump_de_2026_01",
+        reporting_boundary: "provider_plus_customer_interaction",
+        schema_version: "v0.1"
+      },
+      executive: {
+        contacts_total: 840000,
+        resolved_cases_total: 474500,
+        aht_min: 6.2,
+        fcr: 0.68,
+        reopen_rate: 0.135,
+        bot_containment_rate: 0.42,
+        total_estimated_co2e_kg: 1240,
+        co2e_per_resolution_g: 2.61,
+        avoided_co2e_vs_baseline_kg: 123,
+        confidence_level: "medium"
+      },
+      overview_by_channel: [
+        { channel: "call", contacts: 120000, resolved_cases: 102500, estimated_co2e_kg: 540, co2e_per_resolution_g: 5.27, confidence_level: "medium_high" },
+        { channel: "email", contacts: 420000, resolved_cases: 310000, estimated_co2e_kg: 390, co2e_per_resolution_g: 1.26, confidence_level: "medium" },
+        { channel: "chatbot", contacts: 300000, resolved_cases: 126000, estimated_co2e_kg: 130, co2e_per_resolution_g: 1.03, confidence_level: "medium" },
+        { channel: "voice_bot", contacts: 95000, resolved_cases: 36000, estimated_co2e_kg: 180, co2e_per_resolution_g: 5.0, confidence_level: "low_medium" }
+      ],
+      calls: {
+        inbound_calls: 120000, resolved_calls: 102500, abandon_rate: 0.079, avg_handle_time_min: 6.2,
+        avg_queue_time_min: 1.4, avg_hold_time_min: 0.7, after_call_work_min: 1.3, callback_requests: 7600,
+        callback_success_rate: 0.776, callback_retry_attempts: 2800, transfer_rate: 0.068, co2e_per_call_g: 5.27,
+        co2e_from_queue_time_kg: 76, co2e_from_hold_time_kg: 31, co2e_from_callback_retries_kg: 22,
+        co2e_avoided_by_aht_reduction_kg: 64.5, estimated_total_co2e_kg: 540, confidence_level: "medium_high"
+      },
+      email: {
+        emails_received: 450000, emails_sent: 420000, resolved_email_cases: 310000, reopen_rate: 0.135,
+        avg_email_handling_time_min: 3.8, attachment_rate: 0.205, attachment_total_gb: 860, co2e_per_email_g: 0.28,
+        co2e_from_reopened_email_cases_kg: 32, co2e_from_attachment_transmission_kg: 90, co2e_from_attachment_storage_kg: 18,
+        co2e_avoided_by_lower_email_volume_kg: 141, estimated_total_co2e_kg: 390, confidence_level: "medium"
+      },
+      chatbot: {
+        chatbot_sessions: 300000, chatbot_resolved_sessions: 126000, chatbot_escalated_sessions: 138000,
+        chatbot_abandoned_sessions: 36000, bot_containment_rate: 0.42, avg_turns: 6.4, co2e_per_chatbot_session_g: 0.81,
+        co2e_per_chatbot_resolution_g: 1.03, co2e_added_by_failed_chatbot_sessions_kg: 44,
+        co2e_avoided_by_call_deflection_kg: 108, co2e_avoided_by_email_deflection_kg: 72, net_avoided_co2e_kg: 136,
+        confidence_level: "medium"
+      },
+      voice_bot: {
+        voice_bot_sessions: 95000, voice_bot_resolved_sessions: 36000, voice_bot_transfer_rate: 0.495, retry_loop_rate: 0.147,
+        intent_failure_rate: 0.147, co2e_per_voice_bot_session_g: 1.9, co2e_per_voice_bot_resolution_g: 5.0,
+        co2e_from_retry_loops_kg: 27, co2e_added_by_voice_to_agent_handover_kg: 61, co2e_avoided_by_voice_bot_resolution_kg: 23,
+        estimated_total_co2e_kg: 180, confidence_level: "low_medium"
+      },
+      cases: {
+        cases_created: 520000, cases_closed: 474500, fcr: 0.68, repeat_contact_rate: 0.11, transfer_rate: 0.07,
+        escalation_rate: 0.04, co2e_per_resolution_g: 2.61, co2e_from_repeat_contacts_kg: 88, confidence_level: "medium"
+      },
+      workforce: {
+        active_agent_count: 210, scheduled_hours: 31200, productive_hours: 24850, occupancy_rate: 0.796,
+        contacts_per_agent: 4000, cases_per_agent: 2260, co2e_per_agent_kg: 5.9, co2e_per_productive_hour_g: 49.9,
+        confidence_level: "medium",
+        teams: [
+          { team: "billing_team", channel: "call", active_agents: 74, occupancy_rate: 0.82, contacts_per_agent: 1622, co2e_per_agent_kg: 7.3, co2e_per_productive_hour_g: 55.4 },
+          { team: "returns_team", channel: "email", active_agents: 86, occupancy_rate: 0.77, contacts_per_agent: 4884, co2e_per_agent_kg: 4.5, co2e_per_productive_hour_g: 42.1 },
+          { team: "digital_service", channel: "chatbot", active_agents: 28, occupancy_rate: 0.71, contacts_per_agent: 10714, co2e_per_agent_kg: 3.1, co2e_per_productive_hour_g: 31.4 },
+          { team: "auth_team", channel: "voice_bot", active_agents: 22, occupancy_rate: 0.69, contacts_per_agent: 4318, co2e_per_agent_kg: 8.2, co2e_per_productive_hour_g: 62.7 }
+        ]
+      },
+      root_causes: {
+        top_contact_driver: "order_status_requests", top_driver_group: "billing", preventable_contact_rate: 0.37,
+        co2e_from_preventable_drivers_kg: 412, highest_impact_driver_group: "billing", confidence_level: "medium",
+        driver_groups: [
+          { driver_group: "billing", contacts: 182000, resolved_cases: 121000, preventable: true, repeat_contact_rate: 0.14, co2e_kg: 286, co2e_per_case_g: 2.36 },
+          { driver_group: "shipping", contacts: 164000, resolved_cases: 98000, preventable: true, repeat_contact_rate: 0.12, co2e_kg: 244, co2e_per_case_g: 2.49 },
+          { driver_group: "returns", contacts: 103000, resolved_cases: 76000, preventable: false, repeat_contact_rate: 0.09, co2e_kg: 173, co2e_per_case_g: 2.28 },
+          { driver_group: "authentication", contacts: 91000, resolved_cases: 64000, preventable: true, repeat_contact_rate: 0.17, co2e_kg: 208, co2e_per_case_g: 3.25 }
+        ],
+        top_drivers: [
+          { source_label: "invoice_missing", contact_driver: "invoice_not_received", driver_group: "billing", contacts: 74000, resolved_cases: 51000, preventable: true, co2e_kg: 118, co2e_per_case_g: 2.31 },
+          { source_label: "track_order", contact_driver: "where_is_my_order", driver_group: "shipping", contacts: 96000, resolved_cases: 58000, preventable: true, co2e_kg: 151, co2e_per_case_g: 2.6 },
+          { source_label: "reset_pw", contact_driver: "password_reset", driver_group: "authentication", contacts: 55000, resolved_cases: 39000, preventable: true, co2e_kg: 132, co2e_per_case_g: 3.38 },
+          { source_label: "return_docs", contact_driver: "return_label_request", driver_group: "returns", contacts: 47000, resolved_cases: 34000, preventable: false, co2e_kg: 84, co2e_per_case_g: 2.47 }
+        ],
+        taxonomy_examples: [
+          { source_label: "invoice_missing", normalized_driver: "invoice_not_received", driver_group: "billing", level_1: "billing", level_2: "invoicing", preventable: true },
+          { source_label: "track_order", normalized_driver: "where_is_my_order", driver_group: "shipping", level_1: "shipping", level_2: "tracking", preventable: true },
+          { source_label: "reset_pw", normalized_driver: "password_reset", driver_group: "authentication", level_1: "account_access", level_2: "authentication", preventable: true }
+        ],
+        driver_group_by_channel: [
+          { driver_group: "billing", channel: "call", co2e_kg: 122 },
+          { driver_group: "billing", channel: "email", co2e_kg: 104 },
+          { driver_group: "shipping", channel: "email", co2e_kg: 96 },
+          { driver_group: "shipping", channel: "chatbot", co2e_kg: 52 },
+          { driver_group: "authentication", channel: "voice_bot", co2e_kg: 108 },
+          { driver_group: "authentication", channel: "call", co2e_kg: 61 }
+        ],
+        driver_group_by_team: [
+          { driver_group: "billing", team: "billing_team", co2e_kg: 186 },
+          { driver_group: "shipping", team: "returns_team", co2e_kg: 121 },
+          { driver_group: "authentication", team: "auth_team", co2e_kg: 154 },
+          { driver_group: "shipping", team: "digital_service", co2e_kg: 63 }
+        ]
+      },
+      drivers: [
+        { driver: "queue_time", channel: "call", estimated_co2e_kg: 76, type: "avoidable_load" },
+        { driver: "reopened_email_cases", channel: "email", estimated_co2e_kg: 32, type: "avoidable_load" },
+        { driver: "attachment_transmission", channel: "email", estimated_co2e_kg: 90, type: "payload_load" },
+        { driver: "chatbot_call_deflection", channel: "chatbot", estimated_co2e_kg: -108, type: "avoided_load" },
+        { driver: "voice_bot_handover", channel: "voice_bot", estimated_co2e_kg: 61, type: "automation_failure_load" }
+      ],
+      baseline_comparison: {
+        baseline_period: "2026-01",
+        baseline_total_estimated_co2e_kg: 1363,
+        delta_total_estimated_co2e_kg: -123,
+        delta_total_estimated_co2e_pct: -0.09,
+        delta_aht_min: -0.9,
+        delta_reopen_rate: -0.025,
+        delta_bot_containment_rate: 0.15
+      },
+      methodology_flags: {
+        customer_side_assumptions_used: true,
+        storage_assumptions_used: true,
+        llm_energy_assumptions_used: true,
+        aggregated_metrics_used: true,
+        event_level_data_used: true
+      }
+    };
+
+    const views = [
+      { id: "overview", label: "Overview" },
+      { id: "root_causes", label: "Root Causes" },
+      { id: "calls", label: "Calls" },
+      { id: "email", label: "Email" },
+      { id: "chatbot", label: "Chatbot" },
+      { id: "voice_bot", label: "Voice Bot" },
+      { id: "cases", label: "Cases" },
+      { id: "workforce", label: "Workforce (Advanced)" },
+      { id: "methodology", label: "Methodology" }
+    ];
+
+    const channelColorClass = { call: "call", email: "email", chatbot: "chatbot", voice_bot: "voice_bot" };
+
+    const fmt = (value, digits = 0) => new Intl.NumberFormat("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+    const pct = (value, digits = 1) => `${fmt(value * 100, digits)}%`;
+    const title = (value) => String(value).replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+
+    function metricCard(label, value, delta, confidence) {
+      return `<article class="metric-card"><div class="metric-label"><span>${label}</span>${confidence ? `<span class="pill ${confidence}">${title(confidence)}</span>` : ""}</div><div class="metric-value">${value}</div>${delta ? `<div class="metric-delta">${delta}</div>` : ""}</article>`;
+    }
+
+    function renderBars(targetId, items, valueKey, formatter, maxValue) {
+      const target = document.getElementById(targetId);
+      const max = maxValue || Math.max(...items.map((item) => Math.abs(item[valueKey])), 1);
+      target.innerHTML = items.map((item) => {
+        const width = Math.max((Math.abs(item[valueKey]) / max) * 100, 2);
+        const cls = item.className || channelColorClass[item.channel] || "warning";
+        return `<div class="bar-row"><div class="bar-label">${item.label}</div><div class="bar-track"><div class="bar-fill ${cls}" style="width:${width}%"></div></div><div class="bar-value">${formatter(item[valueKey])}</div></div>`;
+      }).join("");
+    }
+
+    function renderBreakdowns(targetId, items, formatter) {
+      document.getElementById(targetId).innerHTML = items.map((item) => `<div class="breakdown-item"><span>${item.label}</span><strong>${formatter(item.value)}</strong><div>${item.copy}</div></div>`).join("");
+    }
+
+    function renderKeyValueTable(targetId, rows, formatterMap = {}) {
+      document.getElementById(targetId).innerHTML = rows.map((row) => {
+        const format = formatterMap[row.key] || ((value) => value);
+        return `<tr><th>${row.label}</th><td>${format(row.value)}</td></tr>`;
+      }).join("");
+    }
+
+    function renderTabs() {
+      const tabs = document.getElementById("tabs");
+      tabs.innerHTML = views.map((view, index) => `<button class="tab ${index === 0 ? "active" : ""}" data-view-target="${view.id}">${view.label}</button>`).join("");
+      const activateView = (viewId, activeButton = null) => {
+        document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab === activeButton || tab.getAttribute("data-view-target") === viewId));
+        document.querySelectorAll(".view").forEach((view) => view.classList.toggle("hidden", view.dataset.view !== viewId));
+      };
+      tabs.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-view-target]");
+        if (!button) return;
+        activateView(button.getAttribute("data-view-target"), button);
+      });
+      document.getElementById("flow-strip").addEventListener("click", (event) => {
+        const card = event.target.closest("[data-view-target]");
+        if (!card) return;
+        activateView(card.getAttribute("data-view-target"));
+      });
+    }
+
+    function populateHero(data) {
+      document.getElementById("meta-period").textContent = new Date(data.metadata.period_start).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+      document.getElementById("meta-boundary").textContent = data.metadata.reporting_boundary.replace(/_/g, " + ");
+      document.getElementById("meta-assumptions").textContent = data.metadata.assumption_set_id;
+      document.getElementById("summary-co2").textContent = `${fmt(data.executive.total_estimated_co2e_kg)} kg`;
+      document.getElementById("summary-delta").textContent = `${pct(data.baseline_comparison.delta_total_estimated_co2e_pct, 0)} vs baseline`;
+
+      const biggestNegative = [...data.drivers].filter((driver) => driver.estimated_co2e_kg < 0).sort((a, b) => a.estimated_co2e_kg - b.estimated_co2e_kg)[0];
+      const preventableLoad = data.root_causes.co2e_from_preventable_drivers_kg;
+
+      document.getElementById("insight-load").textContent = "Preventable contact demand";
+      document.getElementById("insight-load-copy").textContent = `${fmt(preventableLoad)} kg CO2e sits in preventable driver groups.`;
+      document.getElementById("insight-win").textContent = title(data.root_causes.top_driver_group);
+      document.getElementById("insight-win-copy").textContent = `${title(data.root_causes.top_driver_group)} is the highest-impact normalized driver group in the current month.`;
+      document.getElementById("insight-watch").textContent = title(biggestNegative.driver);
+      document.getElementById("insight-watch-copy").textContent = `Avoided ${fmt(Math.abs(biggestNegative.estimated_co2e_kg))} kg CO2e versus baseline handling.`;
+    }
+
+    function populateOverview(data) {
+      const executive = data.executive;
+      document.getElementById("overview-metrics").innerHTML = [
+        metricCard("Contacts", fmt(executive.contacts_total), `<strong>${pct(0.07, 0)}</strong><span>vs previous</span>`),
+        metricCard("Resolved Cases", fmt(executive.resolved_cases_total), `<strong>${pct(0.05, 0)}</strong><span>vs previous</span>`),
+        metricCard("AHT", `${fmt(executive.aht_min, 1)} min`, `<strong>${fmt(Math.abs(data.baseline_comparison.delta_aht_min), 1)} min lower</strong><span>vs baseline</span>`),
+        metricCard("FCR", pct(executive.fcr, 0), `<strong>${pct(0.04, 0)}</strong><span>vs previous</span>`),
+        metricCard("Reopen Rate", pct(executive.reopen_rate, 1), `<strong>${fmt(Math.abs(data.baseline_comparison.delta_reopen_rate) * 100, 1)} pts lower</strong><span>vs baseline</span>`),
+        metricCard("Bot Containment", pct(executive.bot_containment_rate, 0), `<strong>${fmt(data.baseline_comparison.delta_bot_containment_rate * 100, 0)} pts higher</strong><span>vs baseline</span>`),
+        metricCard("Estimated CO2e", `${fmt(executive.total_estimated_co2e_kg)} kg`, `<strong>${fmt(Math.abs(data.baseline_comparison.delta_total_estimated_co2e_kg))} kg lower</strong><span>vs baseline</span>`, executive.confidence_level),
+        metricCard("CO2e per Resolution", `${fmt(executive.co2e_per_resolution_g, 2)} g`, `<strong>${fmt(executive.avoided_co2e_vs_baseline_kg)} kg avoided</strong><span>vs baseline</span>`),
+        metricCard("CO2e / Agent", `${fmt(data.workforce.co2e_per_agent_kg, 1)} kg`, `<strong>${fmt(data.workforce.active_agent_count)}</strong><span>active agents</span>`),
+        metricCard("Preventable Contacts", `${pct(data.root_causes.preventable_contact_rate, 0)}`, `<strong>${fmt(data.root_causes.co2e_from_preventable_drivers_kg)} kg</strong><span>avoidable load</span>`),
+        metricCard("Top Driver Group", title(data.root_causes.top_driver_group), `<strong>${fmt(data.root_causes.driver_groups[0].co2e_kg)} kg</strong><span>highest impact</span>`),
+        metricCard("CO2e / Productive Hour", `${fmt(data.workforce.co2e_per_productive_hour_g, 1)} g`, `<strong>${pct(data.workforce.occupancy_rate, 0)}</strong><span>occupancy</span>`)
+      ].join("");
+
+      renderBars("contacts-bars", data.overview_by_channel.map((item) => ({ label: title(item.channel), channel: item.channel, contacts: item.contacts })), "contacts", (value) => fmt(value));
+      renderBars("co2-bars", data.overview_by_channel.map((item) => ({ label: title(item.channel), channel: item.channel, estimated_co2e_kg: item.estimated_co2e_kg })), "estimated_co2e_kg", (value) => `${fmt(value)} kg`);
+
+      document.getElementById("drivers-table").innerHTML = data.drivers.map((driver) => `
+        <tr>
+          <td>${title(driver.driver)}</td>
+          <td>${title(driver.channel)}</td>
+          <td class="${driver.estimated_co2e_kg < 0 ? "driver-negative" : "driver-positive"}">${driver.estimated_co2e_kg < 0 ? "-" : "+"}${fmt(Math.abs(driver.estimated_co2e_kg))} kg</td>
+        </tr>
+      `).join("");
+
+      renderBreakdowns("baseline-grid", [
+        { label: "Total CO2e", value: Math.abs(data.baseline_comparison.delta_total_estimated_co2e_kg), copy: "lower than baseline month" },
+        { label: "AHT", value: Math.abs(data.baseline_comparison.delta_aht_min), copy: "minutes reduced versus baseline" },
+        { label: "Bot Containment", value: data.baseline_comparison.delta_bot_containment_rate * 100, copy: "percentage-point uplift" }
+      ], (value) => fmt(value, value < 10 ? 1 : 0));
+
+      document.getElementById("overview-workforce-value").textContent = `${fmt(data.workforce.co2e_per_agent_kg, 1)} kg`;
+      document.getElementById("overview-workforce-copy").textContent = `${fmt(data.workforce.active_agent_count)} active agents with ${fmt(data.workforce.co2e_per_productive_hour_g, 1)} g per productive hour.`;
+      document.getElementById("overview-root-value").textContent = `${fmt(data.root_causes.co2e_from_preventable_drivers_kg)} kg`;
+      document.getElementById("overview-root-copy").textContent = `${pct(data.root_causes.preventable_contact_rate, 0)} of contacts are modeled as preventable, led by ${title(data.root_causes.top_driver_group)}.`;
+    }
+
+    function populateCalls(data) {
+      const calls = data.calls;
+      document.getElementById("calls-metrics").innerHTML = [
+        metricCard("Inbound Calls", fmt(calls.inbound_calls)),
+        metricCard("Abandon Rate", pct(calls.abandon_rate, 1)),
+        metricCard("AHT", `${fmt(calls.avg_handle_time_min, 1)} min`),
+        metricCard("Queue Time", `${fmt(calls.avg_queue_time_min, 1)} min`),
+        metricCard("Callback Success", pct(calls.callback_success_rate, 1)),
+        metricCard("Transfers", pct(calls.transfer_rate, 1)),
+        metricCard("CO2e per Call", `${fmt(calls.co2e_per_call_g, 2)} g`, null, calls.confidence_level),
+        metricCard("Queue CO2e", `${fmt(calls.co2e_from_queue_time_kg)} kg`)
+      ].join("");
+
+      renderBars("call-breakdown", [
+        { label: "Queue", value: calls.avg_queue_time_min, className: "warning" },
+        { label: "Talk", value: calls.avg_handle_time_min, className: "call" },
+        { label: "Hold", value: calls.avg_hold_time_min, className: "warning" },
+        { label: "ACW", value: calls.after_call_work_min, className: "call" }
+      ], "value", (value) => `${fmt(value, 1)} min`);
+
+      renderKeyValueTable("calls-detail-table", [
+        { label: "Resolved calls", value: calls.resolved_calls, key: "count" },
+        { label: "Callback requests", value: calls.callback_requests, key: "count" },
+        { label: "Callback retries", value: calls.callback_retry_attempts, key: "count" },
+        { label: "Average hold time", value: calls.avg_hold_time_min, key: "minutes" },
+        { label: "CO2e from hold time", value: calls.co2e_from_hold_time_kg, key: "kg" },
+        { label: "Estimated total call CO2e", value: calls.estimated_total_co2e_kg, key: "kg" }
+      ], { count: (value) => fmt(value), minutes: (value) => `${fmt(value, 1)} min`, kg: (value) => `${fmt(value)} kg` });
+
+      renderBreakdowns("call-impact-grid", [
+        { label: "Queue time", value: calls.co2e_from_queue_time_kg, copy: "avoidable wait load" },
+        { label: "Callback retries", value: calls.co2e_from_callback_retries_kg, copy: "repeat outbound load" },
+        { label: "AHT reduction", value: calls.co2e_avoided_by_aht_reduction_kg, copy: "monthly savings opportunity" }
+      ], (value) => `${fmt(value, 1)} kg`);
+
+      document.getElementById("calls-copy").textContent = `Calls are the heaviest modeled service channel in the demo at ${fmt(calls.co2e_per_call_g, 2)} g per resolved call. The main avoidable load comes from queue time (${fmt(calls.co2e_from_queue_time_kg)} kg) rather than from hold alone, which makes staffing and routing improvements more important than cosmetic call-time reduction.`;
+    }
+
+    function populateEmail(data) {
+      const email = data.email;
+      document.getElementById("email-metrics").innerHTML = [
+        metricCard("Emails Received", fmt(email.emails_received)),
+        metricCard("Resolved Cases", fmt(email.resolved_email_cases)),
+        metricCard("Reopen Rate", pct(email.reopen_rate, 1)),
+        metricCard("Avg Handling", `${fmt(email.avg_email_handling_time_min, 1)} min`),
+        metricCard("Attachment Rate", pct(email.attachment_rate, 1)),
+        metricCard("Attachment Volume", `${fmt(email.attachment_total_gb)} GB`),
+        metricCard("CO2e per Email", `${fmt(email.co2e_per_email_g, 2)} g`, null, email.confidence_level),
+        metricCard("Attachment CO2e", `${fmt(email.co2e_from_attachment_transmission_kg)} kg`)
+      ].join("");
+
+      renderBars("email-breakdown", [
+        { label: "Handling", value: email.avg_email_handling_time_min, className: "email" },
+        { label: "Reopen load", value: email.co2e_from_reopened_email_cases_kg, className: "warning" },
+        { label: "Transmission", value: email.co2e_from_attachment_transmission_kg, className: "email" },
+        { label: "Storage", value: email.co2e_from_attachment_storage_kg, className: "warning" }
+      ], "value", (value) => `${fmt(value, value < 10 ? 1 : 0)}${value < 10 ? " min" : " kg"}`);
+
+      renderKeyValueTable("email-detail-table", [
+        { label: "Emails sent", value: email.emails_sent, key: "count" },
+        { label: "Attachment volume", value: email.attachment_total_gb, key: "gb" },
+        { label: "Reopened case CO2e", value: email.co2e_from_reopened_email_cases_kg, key: "kg" },
+        { label: "Storage CO2e", value: email.co2e_from_attachment_storage_kg, key: "kg" },
+        { label: "Estimated total email CO2e", value: email.estimated_total_co2e_kg, key: "kg" }
+      ], { count: (value) => fmt(value), gb: (value) => `${fmt(value)} GB`, kg: (value) => `${fmt(value)} kg` });
+
+      renderBreakdowns("email-impact-grid", [
+        { label: "Attachment transmission", value: email.co2e_from_attachment_transmission_kg, copy: "payload movement" },
+        { label: "Attachment storage", value: email.co2e_from_attachment_storage_kg, copy: "retention burden" },
+        { label: "Volume reduction opportunity", value: email.co2e_avoided_by_lower_email_volume_kg, copy: "savings versus unnecessary mail" }
+      ], (value) => `${fmt(value)} kg`);
+
+      document.getElementById("email-copy").textContent = `Email is less carbon-intensive per resolution than calls in this demo, but it still produces material load when conversations reopen and attachments expand the payload. The model shows ${fmt(email.co2e_from_reopened_email_cases_kg)} kg from reopen loops and ${fmt(email.co2e_from_attachment_transmission_kg)} kg from attachment transmission alone.`;
+    }
+
+    function populateChatbot(data) {
+      const chatbot = data.chatbot;
+      document.getElementById("chatbot-metrics").innerHTML = [
+        metricCard("Sessions", fmt(chatbot.chatbot_sessions)),
+        metricCard("Resolved by Bot", fmt(chatbot.chatbot_resolved_sessions)),
+        metricCard("Escalated", fmt(chatbot.chatbot_escalated_sessions)),
+        metricCard("Containment", pct(chatbot.bot_containment_rate, 0)),
+        metricCard("Average Turns", fmt(chatbot.avg_turns, 1)),
+        metricCard("CO2e per Session", `${fmt(chatbot.co2e_per_chatbot_session_g, 2)} g`, null, chatbot.confidence_level),
+        metricCard("Avoided Call CO2e", `${fmt(chatbot.co2e_avoided_by_call_deflection_kg)} kg`),
+        metricCard("Net Avoided CO2e", `${fmt(chatbot.net_avoided_co2e_kg)} kg`)
+      ].join("");
+
+      renderBars("chatbot-breakdown", [
+        { label: "Resolved", value: chatbot.chatbot_resolved_sessions, className: "chatbot" },
+        { label: "Escalated", value: chatbot.chatbot_escalated_sessions, className: "warning" },
+        { label: "Abandoned", value: chatbot.chatbot_abandoned_sessions, className: "warning" }
+      ], "value", (value) => fmt(value));
+
+      renderKeyValueTable("chatbot-detail-table", [
+        { label: "CO2e per resolution", value: chatbot.co2e_per_chatbot_resolution_g, key: "g" },
+        { label: "Failed session CO2e", value: chatbot.co2e_added_by_failed_chatbot_sessions_kg, key: "kg" },
+        { label: "Avoided email CO2e", value: chatbot.co2e_avoided_by_email_deflection_kg, key: "kg" }
+      ], { g: (value) => `${fmt(value, 2)} g`, kg: (value) => `${fmt(value)} kg` });
+
+      renderBreakdowns("chatbot-impact-grid", [
+        { label: "Bot operating cost", value: chatbot.co2e_added_by_failed_chatbot_sessions_kg, copy: "unsuccessful journeys" },
+        { label: "Call deflection", value: chatbot.co2e_avoided_by_call_deflection_kg, copy: "avoided human calls" },
+        { label: "Email deflection", value: chatbot.co2e_avoided_by_email_deflection_kg, copy: "avoided email loops" }
+      ], (value) => `${fmt(value)} kg`);
+
+      document.getElementById("chatbot-copy").textContent = `The chatbot is a net positive in the demo because its operating cost stays below the load it avoids in human channels. The value would weaken quickly if long sessions escalated more often or if deflected cases still reopened in another channel.`;
+    }
+
+    function populateVoice(data) {
+      const voice = data.voice_bot;
+      document.getElementById("voice-metrics").innerHTML = [
+        metricCard("Voice Sessions", fmt(voice.voice_bot_sessions)),
+        metricCard("Resolved by Bot", fmt(voice.voice_bot_resolved_sessions)),
+        metricCard("Transfer Rate", pct(voice.voice_bot_transfer_rate, 1)),
+        metricCard("Retry Loop Rate", pct(voice.retry_loop_rate, 1)),
+        metricCard("Intent Failure", pct(voice.intent_failure_rate, 1)),
+        metricCard("CO2e per Session", `${fmt(voice.co2e_per_voice_bot_session_g, 2)} g`, null, voice.confidence_level),
+        metricCard("Retry Loop CO2e", `${fmt(voice.co2e_from_retry_loops_kg)} kg`),
+        metricCard("Handover CO2e", `${fmt(voice.co2e_added_by_voice_to_agent_handover_kg)} kg`)
+      ].join("");
+
+      renderBars("voice-breakdown", [
+        { label: "Retry loops", value: voice.co2e_from_retry_loops_kg, className: "warning" },
+        { label: "Agent handover", value: voice.co2e_added_by_voice_to_agent_handover_kg, className: "voice_bot" },
+        { label: "Resolved savings", value: voice.co2e_avoided_by_voice_bot_resolution_kg, className: "positive" }
+      ], "value", (value) => `${fmt(value)} kg`);
+
+      renderKeyValueTable("voice-detail-table", [
+        { label: "CO2e per resolution", value: voice.co2e_per_voice_bot_resolution_g, key: "g" },
+        { label: "Estimated total CO2e", value: voice.estimated_total_co2e_kg, key: "kg" }
+      ], { g: (value) => `${fmt(value, 2)} g`, kg: (value) => `${fmt(value)} kg` });
+
+      renderBreakdowns("voice-impact-grid", [
+        { label: "Retry loops", value: voice.co2e_from_retry_loops_kg, copy: "repeated automation cycles" },
+        { label: "Voice-to-agent handover", value: voice.co2e_added_by_voice_to_agent_handover_kg, copy: "bot plus human handling" },
+        { label: "Resolved by voice bot", value: voice.co2e_avoided_by_voice_bot_resolution_kg, copy: "avoided human-only load" }
+      ], (value) => `${fmt(value)} kg`);
+
+      document.getElementById("voice-copy").textContent = `Voice automation remains useful in the demo, but its confidence is lower because retry loops, speech workloads, and handovers are harder to measure consistently across platforms. The main loss comes from handovers after a long automated path.`;
+    }
+
+    function populateCases(data) {
+      const cases = data.cases;
+      document.getElementById("cases-metrics").innerHTML = [
+        metricCard("Cases Created", fmt(cases.cases_created)),
+        metricCard("Cases Closed", fmt(cases.cases_closed)),
+        metricCard("FCR", pct(cases.fcr, 0)),
+        metricCard("Repeat Contact", pct(cases.repeat_contact_rate, 1)),
+        metricCard("Transfer Rate", pct(cases.transfer_rate, 1)),
+        metricCard("Escalation Rate", pct(cases.escalation_rate, 1)),
+        metricCard("CO2e per Resolution", `${fmt(cases.co2e_per_resolution_g, 2)} g`, null, cases.confidence_level),
+        metricCard("Repeat Contact CO2e", `${fmt(cases.co2e_from_repeat_contacts_kg)} kg`)
+      ].join("");
+
+      renderBars("cases-breakdown", [
+        { label: "Repeat contacts", value: cases.repeat_contact_rate * 100, className: "warning" },
+        { label: "Transfers", value: cases.transfer_rate * 100, className: "call" },
+        { label: "Escalations", value: cases.escalation_rate * 100, className: "voice_bot" }
+      ], "value", (value) => `${fmt(value, 1)}%`, 20);
+
+      document.getElementById("cases-copy").textContent = `Case-level reporting makes the waste pattern visible across channels. In the demo, repeat contacts alone add ${fmt(cases.co2e_from_repeat_contacts_kg)} kg CO2e, which is why FCR and reopen control should stay central even when automation is improving.`;
+    }
+
+    function populateWorkforce(data) {
+      const workforce = data.workforce;
+      document.getElementById("workforce-metrics").innerHTML = [
+        metricCard("Active Agents", fmt(workforce.active_agent_count)),
+        metricCard("Scheduled Hours", fmt(workforce.scheduled_hours)),
+        metricCard("Productive Hours", fmt(workforce.productive_hours)),
+        metricCard("Occupancy", pct(workforce.occupancy_rate, 1)),
+        metricCard("Contacts / Agent", fmt(workforce.contacts_per_agent)),
+        metricCard("Cases / Agent", fmt(workforce.cases_per_agent)),
+        metricCard("CO2e / Agent", `${fmt(workforce.co2e_per_agent_kg, 1)} kg`, null, workforce.confidence_level),
+        metricCard("CO2e / Productive Hour", `${fmt(workforce.co2e_per_productive_hour_g, 1)} g`)
+      ].join("");
+
+      renderBars("workforce-breakdown", workforce.teams.map((team) => ({
+        label: title(team.team.replace("_team", "")),
+        channel: team.channel,
+        co2e_per_agent_kg: team.co2e_per_agent_kg
+      })), "co2e_per_agent_kg", (value) => `${fmt(value, 1)} kg`);
+
+      document.getElementById("workforce-table").innerHTML = workforce.teams.map((team) => `
+        <tr>
+          <td>${title(team.team.replace("_team", ""))}</td>
+          <td>${title(team.channel)}</td>
+          <td>${fmt(team.active_agents)}</td>
+          <td>${pct(team.occupancy_rate, 0)}</td>
+          <td>${fmt(team.co2e_per_agent_kg, 1)} kg</td>
+        </tr>
+      `).join("");
+
+      renderBreakdowns("workforce-impact-grid", [
+        { label: "Occupancy", value: workforce.occupancy_rate * 100, copy: "share of productive time" },
+        { label: "Contacts / Agent", value: workforce.contacts_per_agent, copy: "channel load per active agent" },
+        { label: "CO2e / Hour", value: workforce.co2e_per_productive_hour_g, copy: "intensity per productive hour" }
+      ], (value) => value > 100 ? fmt(value, 0) : fmt(value, 1));
+
+      const highestTeam = [...workforce.teams].sort((a, b) => b.co2e_per_agent_kg - a.co2e_per_agent_kg)[0];
+      document.getElementById("workforce-copy").textContent = `${title(highestTeam.team.replace("_team", ""))} has the highest estimated CO2e per agent at ${fmt(highestTeam.co2e_per_agent_kg, 1)} kg. That suggests the next improvement step is not only channel optimization, but also looking at how workload, queue design, and staffing structure interact in the most carbon-intensive teams.`;
+    }
+
+    function populateRootCauses(data) {
+      const root = data.root_causes;
+      document.getElementById("root-cause-metrics").innerHTML = [
+        metricCard("Top Contact Driver", title(root.top_contact_driver)),
+        metricCard("Top Driver Group", title(root.top_driver_group)),
+        metricCard("Preventable Contact Rate", pct(root.preventable_contact_rate, 0)),
+        metricCard("Preventable CO2e", `${fmt(root.co2e_from_preventable_drivers_kg)} kg`, null, root.confidence_level),
+        metricCard("Highest-Impact Group", title(root.highest_impact_driver_group)),
+        metricCard("Driver Groups", fmt(root.driver_groups.length)),
+        metricCard("Top Driver CO2e", `${fmt(root.top_drivers[0].co2e_kg)} kg`),
+        metricCard("Top Driver CO2e / Case", `${fmt(root.top_drivers[0].co2e_per_case_g, 2)} g`)
+      ].join("");
+
+      renderBars("root-cause-breakdown", root.driver_groups.map((group) => ({
+        label: title(group.driver_group),
+        className: group.preventable ? "warning" : "positive",
+        co2e_kg: group.co2e_kg
+      })), "co2e_kg", (value) => `${fmt(value)} kg`);
+
+      document.getElementById("root-cause-table").innerHTML = root.top_drivers.map((driver) => `
+        <tr>
+          <td>${driver.source_label}</td>
+          <td>${title(driver.contact_driver)}</td>
+          <td>${title(driver.driver_group)}</td>
+          <td><span class="pill ${driver.preventable ? "medium_high" : "medium"}">${driver.preventable ? "Yes" : "No"}</span></td>
+          <td>${fmt(driver.co2e_kg)} kg</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("taxonomy-table").innerHTML = root.taxonomy_examples.map((item) => `
+        <tr>
+          <td>${item.source_label}</td>
+          <td>${title(item.normalized_driver)}</td>
+          <td>${title(item.level_1)}</td>
+          <td>${title(item.level_2)}</td>
+        </tr>
+      `).join("");
+
+      const preventableGroups = root.driver_groups.filter((group) => group.preventable);
+      const preventableShare = preventableGroups.reduce((sum, group) => sum + group.co2e_kg, 0);
+      renderBreakdowns("root-cause-impact-grid", [
+        { label: "Preventable load", value: preventableShare, copy: "estimated avoidable CO2e" },
+        { label: "Top group", value: root.driver_groups[0].co2e_kg, copy: `${title(root.driver_groups[0].driver_group)} impact` },
+        { label: "Top driver", value: root.top_drivers[0].co2e_kg, copy: `${title(root.top_drivers[0].contact_driver)}` }
+      ], (value) => `${fmt(value)} kg`);
+
+      renderBars("root-cause-channel-breakdown", root.driver_group_by_channel.map((item) => ({
+        label: `${title(item.driver_group)} / ${title(item.channel)}`,
+        channel: item.channel,
+        co2e_kg: item.co2e_kg
+      })), "co2e_kg", (value) => `${fmt(value)} kg`);
+
+      renderBars("root-cause-team-breakdown", root.driver_group_by_team.map((item) => ({
+        label: `${title(item.driver_group)} / ${title(item.team.replace("_team", ""))}`,
+        className: "warning",
+        co2e_kg: item.co2e_kg
+      })), "co2e_kg", (value) => `${fmt(value)} kg`);
+
+      document.getElementById("root-cause-copy").textContent = `${title(root.top_driver_group)} is the highest-impact driver group in the demo, and ${pct(root.preventable_contact_rate, 0)} of contacts are modeled as preventable. That means the strongest CO2 opportunity is not just moving traffic between channels, but removing demand created by billing, shipping, and authentication failures at the source.`;
+    }
+
+    function populateMethodology(data) {
+      document.getElementById("method-flags").innerHTML = Object.entries(data.methodology_flags).map(([key, value]) => `
+        <div class="flag-row">
+          <span>${title(key)}</span>
+          <span class="pill ${value ? "medium_high" : "medium"}">${value ? "Enabled" : "Disabled"}</span>
+        </div>
+      `).join("");
+
+      document.getElementById("method-meta").innerHTML = [
+        ["Organization", data.metadata.organization_id],
+        ["Period Start", data.metadata.period_start],
+        ["Period End", data.metadata.period_end],
+        ["Assumption Set", data.metadata.assumption_set_id],
+        ["Schema Version", data.metadata.schema_version],
+        ["Reporting Boundary", title(data.metadata.reporting_boundary)]
+      ].map(([label, value]) => `<div class="meta-row"><span>${label}</span><strong>${value}</strong></div>`).join("");
+    }
+
+    async function loadData() {
+      try {
+        const response = await fetch("./data/demo/sample-output-metrics.json");
+        if (!response.ok) throw new Error("fetch failed");
+        return await response.json();
+      } catch (error) {
+        return fallbackData;
+      }
+    }
+
+    async function init() {
+      const data = await loadData();
+      renderTabs();
+      populateHero(data);
+      populateOverview(data);
+      populateCalls(data);
+      populateEmail(data);
+      populateChatbot(data);
+      populateVoice(data);
+      populateCases(data);
+      populateWorkforce(data);
+      populateRootCauses(data);
+      populateMethodology(data);
+    }
+
+    init();
+  </script>
+</body>
+</html>

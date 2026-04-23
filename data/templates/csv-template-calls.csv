@@ -1,0 +1,3 @@
+period_start,period_end,team_id,queue_id,country,channel,contacts,resolved_cases,avg_handle_time_seconds,avg_queue_time_seconds,avg_hold_time_seconds,callback_retry_attempts,active_agent_count,scheduled_hours,productive_hours,contact_driver_group
+2026-04-01,2026-04-30,billing_team,billing_queue,DE,call,120000,102500,372,84,42,2800,74,10800,8850,billing
+2026-04-01,2026-04-30,auth_team,voice_auth_queue,DE,call,45000,38200,401,61,35,900,22,3200,2450,authentication

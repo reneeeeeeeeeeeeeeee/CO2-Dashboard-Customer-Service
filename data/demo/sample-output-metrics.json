@@ -1,0 +1,361 @@
+{
+  "metadata": {
+    "organization_id": "org_demo",
+    "period_start": "2026-04-01",
+    "period_end": "2026-04-30",
+    "assumption_set_id": "assump_de_2026_01",
+    "reporting_boundary": "provider_plus_customer_interaction",
+    "schema_version": "v0.1",
+    "notes": "Illustrative output metrics for demo purposes."
+  },
+  "executive": {
+    "contacts_total": 840000,
+    "resolved_cases_total": 474500,
+    "aht_min": 6.2,
+    "fcr": 0.68,
+    "reopen_rate": 0.135,
+    "bot_containment_rate": 0.42,
+    "total_estimated_co2e_kg": 1240,
+    "co2e_per_resolution_g": 2.61,
+    "avoided_co2e_vs_baseline_kg": 123,
+    "confidence_level": "medium"
+  },
+  "overview_by_channel": [
+    {
+      "channel": "call",
+      "contacts": 120000,
+      "resolved_cases": 102500,
+      "estimated_co2e_kg": 540,
+      "co2e_per_resolution_g": 5.27,
+      "confidence_level": "medium_high"
+    },
+    {
+      "channel": "email",
+      "contacts": 420000,
+      "resolved_cases": 310000,
+      "estimated_co2e_kg": 390,
+      "co2e_per_resolution_g": 1.26,
+      "confidence_level": "medium"
+    },
+    {
+      "channel": "chatbot",
+      "contacts": 300000,
+      "resolved_cases": 126000,
+      "estimated_co2e_kg": 130,
+      "co2e_per_resolution_g": 1.03,
+      "confidence_level": "medium"
+    },
+    {
+      "channel": "voice_bot",
+      "contacts": 95000,
+      "resolved_cases": 36000,
+      "estimated_co2e_kg": 180,
+      "co2e_per_resolution_g": 5.0,
+      "confidence_level": "low_medium"
+    }
+  ],
+  "calls": {
+    "inbound_calls": 120000,
+    "resolved_calls": 102500,
+    "abandon_rate": 0.079,
+    "avg_handle_time_min": 6.2,
+    "avg_queue_time_min": 1.4,
+    "avg_hold_time_min": 0.7,
+    "after_call_work_min": 1.3,
+    "callback_requests": 7600,
+    "callback_success_rate": 0.776,
+    "callback_retry_attempts": 2800,
+    "transfer_rate": 0.068,
+    "co2e_per_call_g": 5.27,
+    "co2e_from_queue_time_kg": 76,
+    "co2e_from_hold_time_kg": 31,
+    "co2e_from_callback_retries_kg": 22,
+    "co2e_avoided_by_aht_reduction_kg": 64.5,
+    "estimated_total_co2e_kg": 540,
+    "confidence_level": "medium_high"
+  },
+  "email": {
+    "emails_received": 450000,
+    "emails_sent": 420000,
+    "resolved_email_cases": 310000,
+    "reopen_rate": 0.135,
+    "avg_email_handling_time_min": 3.8,
+    "attachment_rate": 0.205,
+    "attachment_total_gb": 860,
+    "co2e_per_email_g": 0.28,
+    "co2e_from_reopened_email_cases_kg": 32,
+    "co2e_from_attachment_transmission_kg": 90,
+    "co2e_from_attachment_storage_kg": 18,
+    "co2e_avoided_by_lower_email_volume_kg": 141,
+    "estimated_total_co2e_kg": 390,
+    "confidence_level": "medium"
+  },
+  "chatbot": {
+    "chatbot_sessions": 300000,
+    "chatbot_resolved_sessions": 126000,
+    "chatbot_escalated_sessions": 138000,
+    "chatbot_abandoned_sessions": 36000,
+    "bot_containment_rate": 0.42,
+    "avg_turns": 6.4,
+    "co2e_per_chatbot_session_g": 0.81,
+    "co2e_per_chatbot_resolution_g": 1.03,
+    "co2e_added_by_failed_chatbot_sessions_kg": 44,
+    "co2e_avoided_by_call_deflection_kg": 108,
+    "co2e_avoided_by_email_deflection_kg": 72,
+    "net_avoided_co2e_kg": 136,
+    "confidence_level": "medium"
+  },
+  "voice_bot": {
+    "voice_bot_sessions": 95000,
+    "voice_bot_resolved_sessions": 36000,
+    "voice_bot_transfer_rate": 0.495,
+    "retry_loop_rate": 0.147,
+    "intent_failure_rate": 0.147,
+    "co2e_per_voice_bot_session_g": 1.9,
+    "co2e_per_voice_bot_resolution_g": 5.0,
+    "co2e_from_retry_loops_kg": 27,
+    "co2e_added_by_voice_to_agent_handover_kg": 61,
+    "co2e_avoided_by_voice_bot_resolution_kg": 23,
+    "estimated_total_co2e_kg": 180,
+    "confidence_level": "low_medium"
+  },
+  "cases": {
+    "cases_created": 520000,
+    "cases_closed": 474500,
+    "fcr": 0.68,
+    "repeat_contact_rate": 0.11,
+    "transfer_rate": 0.07,
+    "escalation_rate": 0.04,
+    "co2e_per_resolution_g": 2.61,
+    "co2e_from_repeat_contacts_kg": 88,
+    "confidence_level": "medium"
+  },
+  "workforce": {
+    "active_agent_count": 210,
+    "scheduled_hours": 31200,
+    "productive_hours": 24850,
+    "occupancy_rate": 0.796,
+    "contacts_per_agent": 4000,
+    "cases_per_agent": 2260,
+    "co2e_per_agent_kg": 5.9,
+    "co2e_per_productive_hour_g": 49.9,
+    "confidence_level": "medium",
+    "teams": [
+      {
+        "team": "billing_team",
+        "channel": "call",
+        "active_agents": 74,
+        "occupancy_rate": 0.82,
+        "contacts_per_agent": 1622,
+        "co2e_per_agent_kg": 7.3,
+        "co2e_per_productive_hour_g": 55.4
+      },
+      {
+        "team": "returns_team",
+        "channel": "email",
+        "active_agents": 86,
+        "occupancy_rate": 0.77,
+        "contacts_per_agent": 4884,
+        "co2e_per_agent_kg": 4.5,
+        "co2e_per_productive_hour_g": 42.1
+      },
+      {
+        "team": "digital_service",
+        "channel": "chatbot",
+        "active_agents": 28,
+        "occupancy_rate": 0.71,
+        "contacts_per_agent": 10714,
+        "co2e_per_agent_kg": 3.1,
+        "co2e_per_productive_hour_g": 31.4
+      },
+      {
+        "team": "auth_team",
+        "channel": "voice_bot",
+        "active_agents": 22,
+        "occupancy_rate": 0.69,
+        "contacts_per_agent": 4318,
+        "co2e_per_agent_kg": 8.2,
+        "co2e_per_productive_hour_g": 62.7
+      }
+    ]
+  },
+  "root_causes": {
+    "top_contact_driver": "order_status_requests",
+    "top_driver_group": "billing",
+    "preventable_contact_rate": 0.37,
+    "co2e_from_preventable_drivers_kg": 412,
+    "highest_impact_driver_group": "billing",
+    "confidence_level": "medium",
+    "driver_groups": [
+      {
+        "driver_group": "billing",
+        "contacts": 182000,
+        "resolved_cases": 121000,
+        "preventable": true,
+        "repeat_contact_rate": 0.14,
+        "co2e_kg": 286,
+        "co2e_per_case_g": 2.36
+      },
+      {
+        "driver_group": "shipping",
+        "contacts": 164000,
+        "resolved_cases": 98000,
+        "preventable": true,
+        "repeat_contact_rate": 0.12,
+        "co2e_kg": 244,
+        "co2e_per_case_g": 2.49
+      },
+      {
+        "driver_group": "returns",
+        "contacts": 103000,
+        "resolved_cases": 76000,
+        "preventable": false,
+        "repeat_contact_rate": 0.09,
+        "co2e_kg": 173,
+        "co2e_per_case_g": 2.28
+      },
+      {
+        "driver_group": "authentication",
+        "contacts": 91000,
+        "resolved_cases": 64000,
+        "preventable": true,
+        "repeat_contact_rate": 0.17,
+        "co2e_kg": 208,
+        "co2e_per_case_g": 3.25
+      }
+    ],
+    "top_drivers": [
+      {
+        "contact_driver": "invoice_not_received",
+        "source_label": "invoice_missing",
+        "driver_group": "billing",
+        "contacts": 74000,
+        "resolved_cases": 51000,
+        "preventable": true,
+        "co2e_kg": 118,
+        "co2e_per_case_g": 2.31
+      },
+      {
+        "contact_driver": "where_is_my_order",
+        "source_label": "track_order",
+        "driver_group": "shipping",
+        "contacts": 96000,
+        "resolved_cases": 58000,
+        "preventable": true,
+        "co2e_kg": 151,
+        "co2e_per_case_g": 2.6
+      },
+      {
+        "contact_driver": "password_reset",
+        "source_label": "reset_pw",
+        "driver_group": "authentication",
+        "contacts": 55000,
+        "resolved_cases": 39000,
+        "preventable": true,
+        "co2e_kg": 132,
+        "co2e_per_case_g": 3.38
+      },
+      {
+        "contact_driver": "return_label_request",
+        "source_label": "return_docs",
+        "driver_group": "returns",
+        "contacts": 47000,
+        "resolved_cases": 34000,
+        "preventable": false,
+        "co2e_kg": 84,
+        "co2e_per_case_g": 2.47
+      }
+    ],
+    "taxonomy_examples": [
+      {
+        "source_label": "invoice_missing",
+        "normalized_driver": "invoice_not_received",
+        "driver_group": "billing",
+        "level_1": "billing",
+        "level_2": "invoicing",
+        "preventable": true
+      },
+      {
+        "source_label": "track_order",
+        "normalized_driver": "where_is_my_order",
+        "driver_group": "shipping",
+        "level_1": "shipping",
+        "level_2": "tracking",
+        "preventable": true
+      },
+      {
+        "source_label": "reset_pw",
+        "normalized_driver": "password_reset",
+        "driver_group": "authentication",
+        "level_1": "account_access",
+        "level_2": "authentication",
+        "preventable": true
+      }
+    ],
+    "driver_group_by_channel": [
+      { "driver_group": "billing", "channel": "call", "co2e_kg": 122 },
+      { "driver_group": "billing", "channel": "email", "co2e_kg": 104 },
+      { "driver_group": "shipping", "channel": "email", "co2e_kg": 96 },
+      { "driver_group": "shipping", "channel": "chatbot", "co2e_kg": 52 },
+      { "driver_group": "authentication", "channel": "voice_bot", "co2e_kg": 108 },
+      { "driver_group": "authentication", "channel": "call", "co2e_kg": 61 }
+    ],
+    "driver_group_by_team": [
+      { "driver_group": "billing", "team": "billing_team", "co2e_kg": 186 },
+      { "driver_group": "shipping", "team": "returns_team", "co2e_kg": 121 },
+      { "driver_group": "authentication", "team": "auth_team", "co2e_kg": 154 },
+      { "driver_group": "shipping", "team": "digital_service", "co2e_kg": 63 }
+    ]
+  },
+  "drivers": [
+    {
+      "driver": "queue_time",
+      "channel": "call",
+      "estimated_co2e_kg": 76,
+      "type": "avoidable_load"
+    },
+    {
+      "driver": "reopened_email_cases",
+      "channel": "email",
+      "estimated_co2e_kg": 32,
+      "type": "avoidable_load"
+    },
+    {
+      "driver": "attachment_transmission",
+      "channel": "email",
+      "estimated_co2e_kg": 90,
+      "type": "payload_load"
+    },
+    {
+      "driver": "chatbot_call_deflection",
+      "channel": "chatbot",
+      "estimated_co2e_kg": -108,
+      "type": "avoided_load"
+    },
+    {
+      "driver": "voice_bot_handover",
+      "channel": "voice_bot",
+      "estimated_co2e_kg": 61,
+      "type": "automation_failure_load"
+    }
+  ],
+  "baseline_comparison": {
+    "baseline_period": "2026-01",
+    "baseline_total_estimated_co2e_kg": 1363,
+    "baseline_aht_min": 7.1,
+    "baseline_reopen_rate": 0.16,
+    "baseline_bot_containment_rate": 0.27,
+    "delta_total_estimated_co2e_kg": -123,
+    "delta_total_estimated_co2e_pct": -0.09,
+    "delta_aht_min": -0.9,
+    "delta_reopen_rate": -0.025,
+    "delta_bot_containment_rate": 0.15
+  },
+  "methodology_flags": {
+    "customer_side_assumptions_used": true,
+    "storage_assumptions_used": true,
+    "llm_energy_assumptions_used": true,
+    "aggregated_metrics_used": true,
+    "event_level_data_used": true
+  }
+}

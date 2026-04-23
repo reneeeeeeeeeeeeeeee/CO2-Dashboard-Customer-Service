@@ -1,0 +1,3 @@
+period_start,period_end,team_id,queue_id,country,channel,contacts,resolved_cases,reopened_cases,avg_handle_time_seconds,attachments_sent,attachment_total_gb,active_agent_count,scheduled_hours,productive_hours,contact_driver_group
+2026-04-01,2026-04-30,returns_team,returns_queue,DE,email,420000,310000,42000,228,86000,860,86,12400,9550,returns
+2026-04-01,2026-04-30,billing_team,billing_docs_queue,DE,email,76000,54000,8400,194,22000,240,28,3900,3010,billing

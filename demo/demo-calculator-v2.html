@@ -1,0 +1,2775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Service CO2 Calculator V2</title>
+  <style>
+    :root {
+      --bg: #efe7da;
+      --bg-strong: #e5d7c4;
+      --panel: rgba(255, 251, 244, 0.9);
+      --panel-strong: rgba(255, 248, 239, 0.98);
+      --ink: #1d2a29;
+      --muted: #64706d;
+      --line: rgba(29, 42, 41, 0.12);
+      --line-strong: rgba(29, 42, 41, 0.2);
+      --accent: #146c55;
+      --accent-strong: #0b5442;
+      --accent-warm: #b96436;
+      --call: #c56a39;
+      --email: #bb9344;
+      --chatbot: #2d8b72;
+      --voice: #466fb8;
+      --good: #1d8158;
+      --warn: #b4512f;
+      --shadow: 0 26px 60px rgba(56, 44, 27, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Aptos", "Segoe UI Variable Text", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(70, 111, 184, 0.12), transparent 26%),
+        radial-gradient(circle at 100% 0%, rgba(185, 100, 54, 0.14), transparent 26%),
+        linear-gradient(180deg, #f6f0e7 0%, var(--bg) 58%, var(--bg-strong) 100%);
+      min-height: 100vh;
+    }
+
+    .shell {
+      width: min(1920px, calc(100% - 40px));
+      margin: 18px auto 36px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero,
+    .panel,
+    .summary,
+    .step-card,
+    .metric,
+    .json-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero {
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: -40px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(20, 108, 85, 0.12), rgba(20, 108, 85, 0));
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--muted);
+      border: 1px solid rgba(29, 42, 41, 0.08);
+      background: rgba(255, 255, 255, 0.56);
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 0.96;
+      letter-spacing: -0.04em;
+      max-width: 11ch;
+    }
+
+    .hero p,
+    .summary-copy,
+    .small-copy,
+    .field-help,
+    .formula,
+    .note,
+    .method-copy {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font: inherit;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      color: white;
+      background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+      box-shadow: 0 14px 26px rgba(11, 84, 66, 0.22);
+    }
+
+    .secondary {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(29, 42, 41, 0.12);
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .hero-stat {
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+    }
+
+    .hero-stat-label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .hero-stat-value {
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      margin-bottom: 6px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(380px, 32vw, 680px);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .layout > * {
+      min-width: 0;
+    }
+
+    .steps {
+      display: grid;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .steps > * {
+      min-width: 0;
+    }
+
+    .step-card {
+      border-radius: var(--radius-xl);
+      padding: 22px;
+      overflow-x: clip;
+    }
+
+    .step-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .step-meta {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .step-title {
+      margin: 0 0 8px;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .step-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .step-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 16px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(29, 42, 41, 0.1);
+    }
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border: 1px solid rgba(29, 42, 41, 0.14);
+      background: rgba(255, 255, 255, 0.86);
+      border-radius: 14px;
+      padding: 12px 13px;
+      font: inherit;
+      color: var(--ink);
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: 2px solid rgba(20, 108, 85, 0.15);
+      border-color: rgba(20, 108, 85, 0.4);
+    }
+
+    .field-help {
+      font-size: 12px;
+    }
+
+    .toggle-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .toggle button {
+      padding: 11px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(29, 42, 41, 0.1);
+      background: rgba(255, 255, 255, 0.66);
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .toggle button.active {
+      color: white;
+      background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+      border-color: transparent;
+    }
+
+    .formula-box {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.58);
+      border: 1px solid var(--line);
+    }
+
+    .section-results {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .section-result {
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid var(--line);
+    }
+
+    .section-result-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .section-result-value {
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+
+    .formula-title {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .formula {
+      font-family: "Cascadia Mono", "Consolas", monospace;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .summary {
+      border-radius: var(--radius-xl);
+      padding: 22px;
+      position: sticky;
+      top: 14px;
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .summary-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      flex-wrap: wrap;
+    }
+
+    .summary-head > :first-child {
+      min-width: 0;
+    }
+
+    .summary-title {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .boundary-pill {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 10px;
+      border-radius: 999px;
+      color: var(--accent-strong);
+      background: rgba(20, 108, 85, 0.1);
+      border: 1px solid rgba(20, 108, 85, 0.14);
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .summary-total {
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, #fff8ef, #f6f0e4);
+      border: 1px solid rgba(29, 42, 41, 0.08);
+      min-width: 0;
+    }
+
+    .summary-total-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .calc-stamp {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .summary-total-value {
+      font-size: 42px;
+      line-height: 0.95;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      margin-bottom: 6px;
+    }
+
+    .metric-stack,
+    .bar-stack,
+    .method-list {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .metric {
+      border-radius: var(--radius-md);
+      padding: 15px 16px;
+      min-width: 0;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 26px;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      margin-bottom: 4px;
+    }
+
+    .metric-copy {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .bar-card {
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(29, 42, 41, 0.08);
+      min-width: 0;
+    }
+
+    .bar-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(29, 42, 41, 0.08);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      min-width: 6px;
+      border-radius: 999px;
+    }
+
+    .bar-fill.call { background: linear-gradient(90deg, #d88a5f, var(--call)); }
+    .bar-fill.email { background: linear-gradient(90deg, #e0b963, var(--email)); }
+    .bar-fill.chatbot { background: linear-gradient(90deg, #4ab598, var(--chatbot)); }
+    .bar-fill.voice { background: linear-gradient(90deg, #7692d2, var(--voice)); }
+
+    .json-card,
+    .panel {
+      border-radius: var(--radius-xl);
+      padding: 22px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .section-head {
+      margin: 0 0 10px;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    pre {
+      margin: 0;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      overflow: auto;
+      background: #1b2625;
+      color: #ecf4f2;
+      font-family: "Cascadia Mono", "Consolas", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .method-item {
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.58);
+      border: 1px solid var(--line);
+    }
+
+    .method-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .footer-note {
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.56);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .warn-banner {
+      display: grid;
+      gap: 8px;
+    }
+
+    .warn-item {
+      display: flex;
+      align-items: start;
+      gap: 10px;
+      padding: 11px 13px;
+      border-radius: var(--radius-sm);
+      background: rgba(180, 81, 47, 0.07);
+      border: 1px solid rgba(180, 81, 47, 0.18);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--warn);
+    }
+
+    .warn-item-dot {
+      flex-shrink: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--warn);
+      margin-top: 5px;
+    }
+
+    .warn-none {
+      font-size: 12px;
+      color: var(--good);
+      padding: 8px 0 2px;
+    }
+
+    @media (max-width: 1400px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .summary {
+        position: static;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .hero,
+      .method-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 761px) and (max-width: 1180px) {
+      .grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100% - 16px, 1920px);
+      }
+
+      .hero,
+      .step-card,
+      .summary,
+      .panel,
+      .json-card {
+        padding: 18px;
+      }
+
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .method-grid,
+      .section-results {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-total-value {
+        font-size: 34px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">V2 Demo · Integrated Calculator</div>
+        <h1>Customer Service CO2 Calculator</h1>
+        <p>
+          UBA-inspired flow for estimated operational CO2 impact across calls, email,
+          chatbot, and voice bot journeys. This version calculates live from aggregated
+          monthly inputs instead of rendering precomputed demo JSON.
+        </p>
+        <div class="hero-actions">
+          <button class="primary" id="reset-demo">Load Demo Defaults</button>
+          <button class="primary" id="calculate-all">Calculate All</button>
+          <button class="secondary" id="clear-all">Clear All</button>
+          <button class="secondary" id="import-inputs">Import Input JSON</button>
+          <button class="secondary" id="export-inputs">Export Input JSON</button>
+          <button class="secondary" id="export-results">Export Output JSON</button>
+          <button class="secondary" id="export-results-csv">Export Output CSV</button>
+          <button class="secondary" id="jump-results">Jump To Results</button>
+        </div>
+        <input id="input-file" type="file" accept="application/json" style="display: none;" />
+      </div>
+      <div class="hero-side">
+        <div class="hero-stat">
+          <div class="hero-stat-label">How To Use</div>
+          <div class="hero-stat-value">8 steps</div>
+          <div class="small-copy">Assumptions, channels, cases, workforce, root causes, then exportable results.</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Model Style</div>
+          <div class="hero-stat-value">Activity-based</div>
+          <div class="small-copy">Values come from time, traffic, compute, and grid factors.</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Reporting Logic</div>
+          <div class="hero-stat-value">Transparent</div>
+          <div class="small-copy">The calculator keeps formulas and assumptions visible, not hidden.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <main class="steps">
+        <section class="step-card" id="step-assumptions">
+          <div class="step-head">
+            <div>
+              <div class="step-meta">Step 1</div>
+              <h2 class="step-title">Assumptions</h2>
+              <div class="small-copy">Set your reporting boundary and the energy defaults used by every channel.</div>
+            </div>
+            <div class="step-pills">
+              <span class="pill">Boundary-aware</span>
+              <span class="pill">Configurable defaults</span>
+            </div>
+          </div>
+
+          <div class="toggle-row toggle" id="boundary-toggle">
+            <button type="button" data-value="provider" class="active">Provider-side</button>
+            <button type="button" data-value="interaction">Provider + customer</button>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="secondary section-load" data-section="assumptions">Load Defaults</button>
+            <button type="button" class="secondary section-clear" data-section="assumptions">Clear</button>
+            <button type="button" class="primary section-calc" data-section="assumptions">Calculate</button>
+          </div>
+
+          <div class="section-results" id="results-assumptions">
+            <div class="section-result"><div class="section-result-label">Boundary</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Grid Factor</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">LLM Turn</div><div class="section-result-value">n/a</div></div>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              <label for="grid_factor">Grid factor kg CO2e / kWh</label>
+              <input id="grid_factor" type="number" min="0" step="0.001" />
+              <div class="field-help">Default DE reference value from the current methodology.</div>
+            </div>
+            <div class="field">
+              <label for="fixed_network">Fixed network kWh / GB</label>
+              <input id="fixed_network" type="number" min="0" step="0.01" />
+              <div class="field-help">Used for email payload and the provider-side call path.</div>
+            </div>
+            <div class="field">
+              <label for="mobile_network">Mobile network kWh / GB</label>
+              <input id="mobile_network" type="number" min="0" step="0.01" />
+              <div class="field-help">Used if customer-side mobile traffic is included.</div>
+            </div>
+            <div class="field">
+              <label for="llm_kwh_per_turn">LLM kWh per turn</label>
+              <input id="llm_kwh_per_turn" type="number" min="0" step="0.0001" />
+              <div class="field-help">Default short-turn estimate for GPT-4o-like sessions.</div>
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-top: 12px;">
+            <div class="field">
+              <label for="voice_traffic_gb_per_min">Voice traffic GB / min</label>
+              <input id="voice_traffic_gb_per_min" type="number" min="0" step="0.00001" />
+              <div class="field-help">128 kbps combined voice traffic default.</div>
+            </div>
+            <div class="field">
+              <label for="agent_device_power_w">Agent device power W</label>
+              <input id="agent_device_power_w" type="number" min="0" step="1" />
+              <div class="field-help">Applied to calls and emails as active workstation load.</div>
+            </div>
+            <div class="field">
+              <label for="customer_device_power_w">Customer device power W</label>
+              <input id="customer_device_power_w" type="number" min="0" step="1" />
+              <div class="field-help">Only added in the broader interaction boundary.</div>
+            </div>
+            <div class="field">
+              <label for="storage_kwh_per_gb_month">Storage kWh / GB month</label>
+              <input id="storage_kwh_per_gb_month" type="number" min="0" step="0.001" />
+              <div class="field-help">Used for attachment retention in email workflows.</div>
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-top: 12px;">
+            <div class="field">
+              <label for="email_backlog_penalty">Email backlog penalty factor</label>
+              <input id="email_backlog_penalty" type="number" min="0" max="1" step="0.01" />
+              <div class="field-help">Share of unresolved email backlog counted as active handling load. Default 0.35.</div>
+            </div>
+            <div class="field">
+              <label for="voice_resolution_overhead">Voice resolution overhead factor</label>
+              <input id="voice_resolution_overhead" type="number" min="0" max="1" step="0.01" />
+              <div class="field-help">Infrastructure overhead applied to successfully resolved voice sessions. Default 0.08.</div>
+            </div>
+            <div class="field">
+              <label for="baseline_fixed_overhead_kg">Baseline fixed overhead kg</label>
+              <input id="baseline_fixed_overhead_kg" type="number" min="0" step="1" />
+              <div class="field-help">Fixed CO2e added to the simulated baseline period total. Default 40 kg.</div>
+            </div>
+          </div>
+
+          <div class="formula-box">
+            <div class="formula-title">Core Principle</div>
+            <div class="formula">CO2e = energy use (kWh) x grid factor (kg CO2e / kWh)</div>
+          </div>
+        </section>
+
+        <section class="step-card" id="step-calls">
+          <div class="step-head">
+            <div>
+              <div class="step-meta">Step 2</div>
+              <h2 class="step-title">Calls</h2>
+              <div class="small-copy">Model call footprint from handling time, waiting time, network use, and callback retry load.</div>
+            </div>
+            <div class="step-pills">
+              <span class="pill">AHT sensitive</span>
+              <span class="pill">Queue visible</span>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="secondary section-load" data-section="calls">Load Defaults</button>
+            <button type="button" class="secondary section-clear" data-section="calls">Clear</button>
+            <button type="button" class="primary section-calc" data-section="calls">Calculate</button>
+          </div>
+
+          <div class="section-results" id="results-calls">
+            <div class="section-result"><div class="section-result-label">CO2e / Call</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Queue CO2e</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Total Calls CO2e</div><div class="section-result-value">n/a</div></div>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              <label for="call_resolved">Resolved calls</label>
+              <input id="call_resolved" type="number" min="0" step="1" />
+              <div class="field-help">Main completed call volume. Use callback retries separately below if they create extra follow-up load.</div>
+            </div>
+            <div class="field">
+              <label for="call_aht_min">Avg handle time min</label>
+              <input id="call_aht_min" type="number" min="0" step="0.1" />
+              <div class="field-help">Talk time with the agent for the normal resolved call flow.</div>
+            </div>
+            <div class="field">
+              <label for="call_queue_min">Avg queue time min</label>
+              <input id="call_queue_min" type="number" min="0" step="0.1" />
+              <div class="field-help">Waiting time before the conversation starts.</div>
+            </div>
+            <div class="field">
+              <label for="call_hold_min">Avg hold time min</label>
+              <input id="call_hold_min" type="number" min="0" step="0.1" />
+              <div class="field-help">Time already connected, but put on hold during the call.</div>
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-top: 12px;">
+            <div class="field">
+              <label for="call_acw_min">After-call work min</label>
+              <input id="call_acw_min" type="number" min="0" step="0.1" />
+              <div class="field-help">Agent wrap-up time after the call, for notes, tags, or case updates.</div>
+            </div>
+            <div class="field">
+              <label for="call_callback_retry_attempts">Callback retry attempts total</label>
+              <input id="call_callback_retry_attempts" type="number" min="0" step="1" />
+              <div class="field-help">Extra callback attempts outside the main resolved-call count. Use this for failed or repeated outbound callback tries.</div>
+            </div>
+            <div class="field">
+              <label for="call_callback_retry_min">Avg callback retry min</label>
+              <input id="call_callback_retry_min" type="number" min="0" step="0.1" />
+              <div class="field-help">Average duration of one callback retry attempt.</div>
+            </div>
+            <div class="field">
+              <label for="call_customer_network">Customer network type</label>
+              <select id="call_customer_network">
+                <option value="fixed">Fixed</option>
+                <option value="mobile">Mobile</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="formula-box">
+            <div class="formula-title">Call Formula</div>
+            <div class="formula">per_call_kWh = agent_power x (AHT + ACW) / 60 + fixed_network x voice_GB_per_min x (AHT + Queue + Hold)</div>
+            <div class="formula" style="margin-top: 6px;">interaction_add_on = customer_power x (AHT + Queue + Hold) / 60 + customer_network x voice_GB_per_min x (AHT + Queue + Hold)</div>
+          </div>
+        </section>
+
+        <section class="step-card" id="step-email">
+          <div class="step-head">
+            <div>
+              <div class="step-meta">Step 3</div>
+              <h2 class="step-title">Email</h2>
+              <div class="small-copy">Email impact is driven by handling time, reopen loops, attachment payload, and storage retention.</div>
+            </div>
+            <div class="step-pills">
+              <span class="pill">Handling-driven</span>
+              <span class="pill">Attachment-aware</span>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="secondary section-load" data-section="email">Load Defaults</button>
+            <button type="button" class="secondary section-clear" data-section="email">Clear</button>
+            <button type="button" class="primary section-calc" data-section="email">Calculate</button>
+          </div>
+
+          <div class="section-results" id="results-email">
+            <div class="section-result"><div class="section-result-label">CO2e / Email</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Reopen CO2e</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Total Email CO2e</div><div class="section-result-value">n/a</div></div>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              <label for="email_received">Emails received</label>
+              <input id="email_received" type="number" min="0" step="1" />
+              <div class="field-help">Incoming email volume entering the support workflow.</div>
+            </div>
+            <div class="field">
+              <label for="email_sent">Emails sent</label>
+              <input id="email_sent" type="number" min="0" step="1" />
+              <div class="field-help">Outgoing email volume. This includes replies and outbound service emails.</div>
+            </div>
+            <div class="field">
+              <label for="email_resolved">Resolved email cases</label>
+              <input id="email_resolved" type="number" min="0" step="1" />
+              <div class="field-help">Cases closed through email handling, not just raw sent message count.</div>
+            </div>
+            <div class="field">
+              <label for="email_reopened_cases">Reopened email cases</label>
+              <input id="email_reopened_cases" type="number" min="0" step="1" />
+              <div class="field-help">Cases that come back after an initial resolution and require another handling cycle.</div>
+            </div>
+            <div class="field">
+              <label for="email_handling_min">Avg agent handling min</label>
+              <input id="email_handling_min" type="number" min="0" step="0.1" />
+              <div class="field-help">Average agent work time per resolved or reopened email case.</div>
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-top: 12px;">
+            <div class="field">
+              <label for="email_customer_read_min">Customer read min</label>
+              <input id="email_customer_read_min" type="number" min="0" step="0.1" />
+              <div class="field-help">Optional customer-side reading time if the broader interaction boundary is used.</div>
+            </div>
+            <div class="field">
+              <label for="email_simple_size_gb">Email body size GB</label>
+              <input id="email_simple_size_gb" type="number" min="0" step="0.00001" />
+              <div class="field-help">Small base email payload without major attachments, such as text, HTML, headers, and signatures.</div>
+            </div>
+            <div class="field">
+              <label for="email_attachment_total_gb">Attachment transfer GB</label>
+              <input id="email_attachment_total_gb" type="number" min="0" step="0.1" />
+              <div class="field-help">Total attachment volume transmitted across the reporting period, for example PDFs, photos, or forms.</div>
+            </div>
+            <div class="field">
+              <label for="email_storage_gb">Stored email or attachment GB</label>
+              <input id="email_storage_gb" type="number" min="0" step="0.1" />
+              <div class="field-help">Data volume that remains stored over time. Use this for retained email and attachment footprint, not for one-time transport.</div>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top: 12px;">
+            <div class="field">
+              <label for="email_retention_months">Retention months</label>
+              <input id="email_retention_months" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="email_customer_network">Customer network type</label>
+              <select id="email_customer_network">
+                <option value="fixed">Fixed</option>
+                <option value="mobile">Mobile</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="formula-box">
+            <div class="formula-title">Email Formula</div>
+            <div class="formula">per_email_kWh = agent_power x handling_min / 60 + fixed_network x simple_email_GB</div>
+            <div class="formula" style="margin-top: 6px;">reopen_kWh = reopened_cases x (agent_power x handling_min / 60 + customer_power x read_min / 60 + network x simple_email_GB)</div>
+          </div>
+        </section>
+
+        <section class="step-card" id="step-chatbot">
+          <div class="step-head">
+            <div>
+              <div class="step-meta">Step 4</div>
+              <h2 class="step-title">Chatbot</h2>
+              <div class="small-copy">Measure bot operating cost first, then compare against avoided human channel load.</div>
+            </div>
+            <div class="step-pills">
+              <span class="pill">LLM-aware</span>
+              <span class="pill">Net savings view</span>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="secondary section-load" data-section="chatbot">Load Defaults</button>
+            <button type="button" class="secondary section-clear" data-section="chatbot">Clear</button>
+            <button type="button" class="primary section-calc" data-section="chatbot">Calculate</button>
+          </div>
+
+          <div class="section-results" id="results-chatbot">
+            <div class="section-result"><div class="section-result-label">CO2e / Session</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Net Avoided</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Total Chatbot CO2e</div><div class="section-result-value">n/a</div></div>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              <label for="chatbot_sessions">Chatbot sessions</label>
+              <input id="chatbot_sessions" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="chatbot_resolved_sessions">Resolved sessions</label>
+              <input id="chatbot_resolved_sessions" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="chatbot_escalated_sessions">Escalated sessions</label>
+              <input id="chatbot_escalated_sessions" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="chatbot_abandoned_sessions">Abandoned sessions</label>
+              <input id="chatbot_abandoned_sessions" type="number" min="0" step="1" />
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-top: 12px;">
+            <div class="field">
+              <label for="chatbot_avg_turns">Avg turns</label>
+              <input id="chatbot_avg_turns" type="number" min="0" step="0.1" />
+            </div>
+            <div class="field">
+              <label for="chatbot_session_min">Avg session min</label>
+              <input id="chatbot_session_min" type="number" min="0" step="0.1" />
+            </div>
+            <div class="field">
+              <label for="chatbot_deflected_calls">Deflected calls</label>
+              <input id="chatbot_deflected_calls" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="chatbot_deflected_emails">Deflected emails</label>
+              <input id="chatbot_deflected_emails" type="number" min="0" step="1" />
+            </div>
+          </div>
+
+          <div class="formula-box">
+            <div class="formula-title">Chatbot Formula</div>
+            <div class="formula">per_session_kWh = avg_turns x llm_kWh_per_turn + customer_power x session_min / 60</div>
+            <div class="formula" style="margin-top: 6px;">total_chatbot_CO2e = sessions x per_session_kWh x grid + escalated_sessions x (call_CO2e x 0.45 + email_CO2e x 0.55) + abandoned_sessions x per_session_kWh x 0.5</div>
+            <div class="formula" style="margin-top: 6px;">net_avoided_CO2e = avoided_calls x call_CO2e + avoided_emails x email_CO2e - total_chatbot_CO2e</div>
+          </div>
+        </section>
+
+        <section class="step-card" id="step-voice">
+          <div class="step-head">
+            <div>
+              <div class="step-meta">Step 5</div>
+              <h2 class="step-title">Voice Bot</h2>
+              <div class="small-copy">Voice automation benefits depend on retry loops, speech duration, and handover to human agents.</div>
+            </div>
+            <div class="step-pills">
+              <span class="pill">Retry visible</span>
+              <span class="pill">Handover-aware</span>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="secondary section-load" data-section="voice">Load Defaults</button>
+            <button type="button" class="secondary section-clear" data-section="voice">Clear</button>
+            <button type="button" class="primary section-calc" data-section="voice">Calculate</button>
+          </div>
+
+          <div class="section-results" id="results-voice">
+            <div class="section-result"><div class="section-result-label">CO2e / Voice Session</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Retry CO2e</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Total Voice CO2e</div><div class="section-result-value">n/a</div></div>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              <label for="voice_sessions">Voice bot sessions</label>
+              <input id="voice_sessions" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="voice_resolved_sessions">Resolved sessions</label>
+              <input id="voice_resolved_sessions" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="voice_transferred_sessions">Transferred to agent</label>
+              <input id="voice_transferred_sessions" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="voice_duration_min">Avg session min</label>
+              <input id="voice_duration_min" type="number" min="0" step="0.1" />
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-top: 12px;">
+            <div class="field">
+              <label for="voice_retry_loops">Avg retry loops</label>
+              <input id="voice_retry_loops" type="number" min="0" step="0.1" />
+            </div>
+            <div class="field">
+              <label for="voice_retry_penalty_min">Retry penalty min</label>
+              <input id="voice_retry_penalty_min" type="number" min="0" step="0.1" />
+            </div>
+            <div class="field">
+              <label for="voice_llm_turns">Avg LLM turns</label>
+              <input id="voice_llm_turns" type="number" min="0" step="0.1" />
+            </div>
+            <div class="field">
+              <label for="voice_customer_network">Customer network type</label>
+              <select id="voice_customer_network">
+                <option value="fixed">Fixed</option>
+                <option value="mobile">Mobile</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="formula-box">
+            <div class="formula-title">Voice Bot Formula</div>
+            <div class="formula">per_voice_session_kWh = voice_GB_per_min x network x duration_min + llm_turns x llm_kWh_per_turn + customer_power x duration_min / 60</div>
+            <div class="formula" style="margin-top: 6px;">handover_add_on = transferred_sessions x call_CO2e — each transfer adds the cost of the resulting call; voice session energy is already counted in sessions x per_session_CO2e</div>
+            <div class="formula" style="margin-top: 6px;">resolution_overhead = resolved_sessions x voice_session_CO2e x 0.08 — infrastructure overhead on successful paths, not a net saving</div>
+            <div class="formula" style="margin-top: 6px;">intent_failure_rate = (sessions - resolved_sessions) / sessions — share of sessions that did not resolve autonomously</div>
+          </div>
+        </section>
+
+        <section class="step-card" id="step-cases-workforce">
+          <div class="step-head">
+            <div>
+              <div class="step-meta">Step 6</div>
+              <h2 class="step-title">Cases And Workforce</h2>
+              <div class="small-copy">This layer converts channel totals into service-level and staffing KPIs such as FCR, repeat contact load, and CO2e per agent.</div>
+            </div>
+            <div class="step-pills">
+              <span class="pill">Service KPI layer</span>
+              <span class="pill">Staffing intensity</span>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="secondary section-load" data-section="cases_workforce">Load Defaults</button>
+            <button type="button" class="secondary section-clear" data-section="cases_workforce">Clear</button>
+            <button type="button" class="primary section-calc" data-section="cases_workforce">Calculate</button>
+          </div>
+
+          <div class="section-results" id="results-cases_workforce">
+            <div class="section-result"><div class="section-result-label">CO2e / Resolution</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">CO2e / Agent</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Repeat Contact CO2e</div><div class="section-result-value">n/a</div></div>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              <label for="fcr">FCR</label>
+              <input id="fcr" type="number" min="0" max="1" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="repeat_contact_rate">Repeat contact rate</label>
+              <input id="repeat_contact_rate" type="number" min="0" max="1" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="transfer_rate">Transfer rate</label>
+              <input id="transfer_rate" type="number" min="0" max="1" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="escalation_rate">Escalation rate</label>
+              <input id="escalation_rate" type="number" min="0" max="1" step="0.01" />
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-top: 12px;">
+            <div class="field">
+              <label for="active_agent_count">Active agents</label>
+              <input id="active_agent_count" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="scheduled_hours">Scheduled hours</label>
+              <input id="scheduled_hours" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="productive_hours">Productive hours</label>
+              <input id="productive_hours" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="call_team_agents">Call team agents</label>
+              <input id="call_team_agents" type="number" min="0" step="1" />
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-top: 12px;">
+            <div class="field">
+              <label for="email_team_agents">Email team agents</label>
+              <input id="email_team_agents" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="chatbot_team_agents">Chatbot team agents</label>
+              <input id="chatbot_team_agents" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="voice_team_agents">Voice bot team agents</label>
+              <input id="voice_team_agents" type="number" min="0" step="1" />
+            </div>
+          </div>
+
+          <div class="formula-box">
+            <div class="formula-title">Cases And Workforce Logic</div>
+            <div class="formula">co2e_per_agent_kg = total_estimated_co2e_kg / active_agent_count</div>
+            <div class="formula" style="margin-top: 6px;">co2e_from_repeat_contacts_kg = repeat_contact_rate x resolved_cases_total x co2e_per_resolution_kg</div>
+          </div>
+        </section>
+
+        <section class="step-card" id="step-root-causes">
+          <div class="step-head">
+            <div>
+              <div class="step-meta">Step 7</div>
+              <h2 class="step-title">Root Causes</h2>
+              <div class="small-copy">Allocate the footprint into driver groups so the demo shows preventable load instead of only channel totals.</div>
+            </div>
+            <div class="step-pills">
+              <span class="pill">Driver groups</span>
+              <span class="pill">Preventable demand</span>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="secondary section-load" data-section="root_causes">Load Defaults</button>
+            <button type="button" class="secondary section-clear" data-section="root_causes">Clear</button>
+            <button type="button" class="primary section-calc" data-section="root_causes">Calculate</button>
+          </div>
+
+          <div class="section-results" id="results-root_causes">
+            <div class="section-result"><div class="section-result-label">Top Group</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Preventable CO2e</div><div class="section-result-value">n/a</div></div>
+            <div class="section-result"><div class="section-result-label">Top Driver</div><div class="section-result-value">n/a</div></div>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              <label for="top_contact_driver">Top driver label (output only)</label>
+              <input id="top_contact_driver" type="text" />
+              <div class="field-help">Appears in the JSON output as a display label. Has no effect on the CO2e calculation or driver group allocation.</div>
+            </div>
+            <div class="field">
+              <label for="billing_contacts">Billing contacts</label>
+              <input id="billing_contacts" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="shipping_contacts">Shipping contacts</label>
+              <input id="shipping_contacts" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="returns_contacts">Returns contacts</label>
+              <input id="returns_contacts" type="number" min="0" step="1" />
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-top: 12px;">
+            <div class="field">
+              <label for="authentication_contacts">Authentication contacts</label>
+              <input id="authentication_contacts" type="number" min="0" step="1" />
+            </div>
+            <div class="field">
+              <label for="billing_repeat_rate">Billing repeat rate</label>
+              <input id="billing_repeat_rate" type="number" min="0" max="1" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="shipping_repeat_rate">Shipping repeat rate</label>
+              <input id="shipping_repeat_rate" type="number" min="0" max="1" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="returns_repeat_rate">Returns repeat rate</label>
+              <input id="returns_repeat_rate" type="number" min="0" max="1" step="0.01" />
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top: 12px;">
+            <div class="field">
+              <label for="authentication_repeat_rate">Authentication repeat rate</label>
+              <input id="authentication_repeat_rate" type="number" min="0" max="1" step="0.01" />
+            </div>
+            <div class="field">
+              <label>Preventable default</label>
+              <div class="field-help">Billing, shipping, and authentication are treated as preventable by default in this demo. Returns remains non-preventable.</div>
+            </div>
+          </div>
+
+          <div class="formula-box">
+            <div class="formula-title">Root Cause Logic</div>
+            <div class="formula">group_share = contacts x (1 + repeat_rate) / sum(all groups)</div>
+            <div class="formula" style="margin-top: 6px;">group_co2e = total_estimated_co2e_kg x group_share</div>
+          </div>
+
+          <div class="footer-note" style="margin-top: 14px;">
+            This demo uses four fixed driver groups: <strong>Billing, Shipping, Returns, and Authentication</strong>. The group taxonomy, channel mapping, and preventability flags are hardcoded. For a real deployment, these groups would be populated from a CRM contact reason taxonomy and would not be limited to four categories.
+          </div>
+        </section>
+
+        <section class="json-card" id="results">
+          <div class="section-title">Step 8</div>
+          <h2 class="section-head">Results JSON</h2>
+          <div class="small-copy" style="margin-bottom: 10px;">
+            This output is generated live from the inputs above and mirrors the structure of the existing sample metrics file closely enough for demo and product discussion.
+          </div>
+          <div class="footer-note" style="margin-bottom: 14px; border-color: rgba(185, 100, 54, 0.22); background: rgba(185, 100, 54, 0.05);">
+            <strong>baseline_comparison is simulated.</strong> The baseline_period, delta values, and fixed overhead are constructed from the current period inputs plus configurable offsets. They do not represent a real prior measurement. Do not present this block as a verified before/after comparison.
+          </div>
+          <pre id="result-json"></pre>
+        </section>
+
+        <section class="panel">
+          <div class="section-title">Method Notes</div>
+          <h2 class="section-head">How V2 Thinks</h2>
+          <div class="method-grid">
+            <div class="method-item">
+              <strong>1. Transparent defaults</strong>
+              <div class="method-copy">The calculator starts from documented defaults already present in the repo and exposes them as editable assumptions.</div>
+            </div>
+            <div class="method-item">
+              <strong>2. Aggregated first</strong>
+              <div class="method-copy">This demo computes from monthly channel totals. It is intentionally lighter than an event-level engine.</div>
+            </div>
+            <div class="method-item">
+              <strong>3. Net effect, not slogan</strong>
+              <div class="method-copy">Automation is measured as operating cost minus avoided human load, not assumed to be green by default.</div>
+            </div>
+          </div>
+          <div class="footer-note" style="margin-top: 14px;">
+            Recommended wording stays the same as the rest of the repository: estimated operational CO2 impact, activity-based estimate, documented assumptions, and stated reporting boundary.
+          </div>
+        </section>
+      </main>
+
+      <aside class="summary">
+        <div class="summary-head">
+          <div>
+            <div class="section-title">Live Summary</div>
+            <h2 class="summary-title">Current Footprint</h2>
+          </div>
+          <div class="boundary-pill" id="boundary-label">Provider-side</div>
+        </div>
+
+        <div class="summary-total">
+          <div class="summary-total-label">Estimated total CO2e</div>
+          <div class="summary-total-value" id="summary-total">0 kg</div>
+          <div class="summary-copy" id="summary-copy">No inputs calculated yet.</div>
+          <div class="calc-stamp" id="calc-stamp">Not calculated yet.</div>
+        </div>
+
+        <div class="metric-stack">
+          <div class="metric">
+            <div class="metric-label">CO2e per resolution</div>
+            <div class="metric-value" id="metric-per-resolution">0 g</div>
+            <div class="metric-copy">Across all resolved cases modeled in this run.</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Avoided CO2e vs baseline</div>
+            <div class="metric-value" id="metric-avoided">0 kg</div>
+            <div class="metric-copy">Net chatbot and voice-bot savings after operating cost.</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Highest-impact channel</div>
+            <div class="metric-value" id="metric-top-channel">Calls</div>
+            <div class="metric-copy" id="metric-top-copy">Waiting for channel totals.</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-title">Channel Mix</div>
+          <div class="bar-stack" id="channel-bars"></div>
+        </div>
+
+        <div>
+          <div class="section-title">Quick Drivers</div>
+          <div class="method-list" id="driver-list"></div>
+        </div>
+
+        <div>
+          <div class="section-title">Input Checks</div>
+          <div id="warn-list"><div class="warn-none">No issues detected.</div></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const demoDefaults = {
+        boundary: "interaction",
+        assumptions: {
+          grid_factor: 0.363,
+          fixed_network: 0.29,
+          mobile_network: 0.6,
+          llm_kwh_per_turn: 0.0003,
+          voice_traffic_gb_per_min: 0.00096,
+          agent_device_power_w: 90,
+          customer_device_power_w: 5,
+          storage_kwh_per_gb_month: 0.002,
+          email_backlog_penalty: 0.35,
+          voice_resolution_overhead: 0.08,
+          baseline_fixed_overhead_kg: 40
+        },
+        calls: {
+          call_resolved: 102500,
+          call_aht_min: 6.2,
+          call_queue_min: 1.4,
+          call_hold_min: 0.7,
+          call_acw_min: 1.3,
+          call_callback_retry_attempts: 2800,
+          call_callback_retry_min: 2.0,
+          call_customer_network: "mobile"
+        },
+        email: {
+          email_sent: 420000,
+          email_received: 450000,
+          email_resolved: 310000,
+          email_reopened_cases: 42000,
+          email_handling_min: 3.8,
+          email_customer_read_min: 1.0,
+          email_simple_size_gb: 0.0001,
+          email_attachment_total_gb: 860,
+          email_storage_gb: 860,
+          email_retention_months: 18,
+          email_customer_network: "fixed"
+        },
+        chatbot: {
+          chatbot_sessions: 300000,
+          chatbot_resolved_sessions: 126000,
+          chatbot_escalated_sessions: 138000,
+          chatbot_abandoned_sessions: 36000,
+          chatbot_avg_turns: 6.4,
+          chatbot_session_min: 4.2,
+          chatbot_deflected_calls: 24000,
+          chatbot_deflected_emails: 51000
+        },
+        voice: {
+          voice_sessions: 95000,
+          voice_resolved_sessions: 36000,
+          voice_transferred_sessions: 47000,
+          voice_duration_min: 2.8,
+          voice_retry_loops: 1.6,
+          voice_retry_penalty_min: 0.4,
+          voice_llm_turns: 3.2,
+          voice_customer_network: "fixed"
+        },
+        cases_workforce: {
+          fcr: 0.68,
+          repeat_contact_rate: 0.11,
+          transfer_rate: 0.07,
+          escalation_rate: 0.04,
+          active_agent_count: 210,
+          scheduled_hours: 31200,
+          productive_hours: 24850,
+          call_team_agents: 74,
+          email_team_agents: 86,
+          chatbot_team_agents: 28,
+          voice_team_agents: 22
+        },
+        root_causes: {
+          top_contact_driver: "order_status_requests",
+          billing_contacts: 182000,
+          shipping_contacts: 164000,
+          returns_contacts: 103000,
+          authentication_contacts: 91000,
+          billing_repeat_rate: 0.14,
+          shipping_repeat_rate: 0.12,
+          returns_repeat_rate: 0.09,
+          authentication_repeat_rate: 0.17
+        }
+      };
+
+      function clone(value) {
+        return JSON.parse(JSON.stringify(value));
+      }
+
+      function cloneDefaults() {
+        return clone(demoDefaults);
+      }
+
+      function mergeState(base, incoming) {
+        const output = clone(base);
+        if (!incoming || typeof incoming !== "object") return output;
+        for (const [key, value] of Object.entries(incoming)) {
+          if (value && typeof value === "object" && !Array.isArray(value) && output[key] && typeof output[key] === "object" && !Array.isArray(output[key])) {
+            output[key] = mergeState(output[key], value);
+          } else {
+            output[key] = value;
+          }
+        }
+        return output;
+      }
+
+      function getNetworkIntensity(state, kind) {
+        return kind === "mobile" ? state.assumptions.mobile_network : state.assumptions.fixed_network;
+      }
+
+      function customerEnabled(state) {
+        return state.boundary === "interaction";
+      }
+
+      function toKwhFromWattsMinutes(watts, minutes) {
+        return (watts / 1000) * (minutes / 60);
+      }
+
+      function round(value, digits = 3) {
+        const factor = 10 ** digits;
+        return Math.round((Number(value) || 0) * factor) / factor;
+      }
+
+      function confidenceFromBoundary(state) {
+        return state.boundary === "interaction" ? "medium" : "medium_high";
+      }
+
+      function calculateCalls(state) {
+        const a = state.assumptions;
+        const c = state.calls;
+        const callMinutes = c.call_aht_min + c.call_queue_min + c.call_hold_min;
+        const agentMinutes = c.call_aht_min + c.call_acw_min;
+        const providerNetworkKwh = a.fixed_network * a.voice_traffic_gb_per_min * callMinutes;
+        const providerAgentKwh = toKwhFromWattsMinutes(a.agent_device_power_w, agentMinutes);
+        const customerMinutes = customerEnabled(state) ? callMinutes : 0;
+        const customerNetworkKwh = customerEnabled(state) ? getNetworkIntensity(state, c.call_customer_network) * a.voice_traffic_gb_per_min * customerMinutes : 0;
+        const customerDeviceKwh = customerEnabled(state) ? toKwhFromWattsMinutes(a.customer_device_power_w, customerMinutes) : 0;
+        const perCallKwh = providerNetworkKwh + providerAgentKwh + customerNetworkKwh + customerDeviceKwh;
+        const perCallKg = perCallKwh * a.grid_factor;
+        const queueKwhPerCall = (a.fixed_network * a.voice_traffic_gb_per_min * c.call_queue_min)
+          + (customerEnabled(state) ? getNetworkIntensity(state, c.call_customer_network) * a.voice_traffic_gb_per_min * c.call_queue_min : 0)
+          + (customerEnabled(state) ? toKwhFromWattsMinutes(a.customer_device_power_w, c.call_queue_min) : 0);
+        const holdKwhPerCall = (a.fixed_network * a.voice_traffic_gb_per_min * c.call_hold_min)
+          + (customerEnabled(state) ? getNetworkIntensity(state, c.call_customer_network) * a.voice_traffic_gb_per_min * c.call_hold_min : 0)
+          + (customerEnabled(state) ? toKwhFromWattsMinutes(a.customer_device_power_w, c.call_hold_min) : 0);
+        const retryKwh = c.call_callback_retry_attempts * (
+          toKwhFromWattsMinutes(a.agent_device_power_w, c.call_callback_retry_min)
+          + a.fixed_network * a.voice_traffic_gb_per_min * c.call_callback_retry_min
+          + (customerEnabled(state) ? getNetworkIntensity(state, c.call_customer_network) * a.voice_traffic_gb_per_min * c.call_callback_retry_min : 0)
+          + (customerEnabled(state) ? toKwhFromWattsMinutes(a.customer_device_power_w, c.call_callback_retry_min) : 0)
+        );
+        const retryKg = retryKwh * a.grid_factor;
+        const totalKg = (c.call_resolved * perCallKg) + retryKg;
+        const savedPerMinuteKwh = toKwhFromWattsMinutes(a.agent_device_power_w, 1) + (a.fixed_network * a.voice_traffic_gb_per_min);
+        const ahtReductionMinutes = c.call_resolved * Math.max(c.call_aht_min - 5.2, 0);
+        return {
+          inbound_calls: c.call_resolved,
+          resolved_calls: c.call_resolved,
+          abandon_rate: 0,
+          avg_handle_time_min: c.call_aht_min,
+          avg_queue_time_min: c.call_queue_min,
+          avg_hold_time_min: c.call_hold_min,
+          after_call_work_min: c.call_acw_min,
+          callback_requests: c.call_callback_retry_attempts,
+          callback_success_rate: 0,
+          callback_retry_attempts: c.call_callback_retry_attempts,
+          transfer_rate: state.cases_workforce.transfer_rate,
+          co2e_per_call_g: perCallKg * 1000,
+          co2e_per_callback_retry_g: c.call_callback_retry_attempts ? (retryKg * 1000) / c.call_callback_retry_attempts : 0,
+          co2e_from_queue_time_kg: queueKwhPerCall * c.call_resolved * a.grid_factor,
+          co2e_from_hold_time_kg: holdKwhPerCall * c.call_resolved * a.grid_factor,
+          co2e_from_callback_retries_kg: retryKg,
+          co2e_avoided_by_aht_reduction_kg: ahtReductionMinutes * savedPerMinuteKwh * a.grid_factor,
+          estimated_total_co2e_kg: totalKg,
+          confidence_level: confidenceFromBoundary(state)
+        };
+      }
+
+      function calculateEmail(state) {
+        const a = state.assumptions;
+        const e = state.email;
+        const customerNetwork = getNetworkIntensity(state, e.email_customer_network);
+        const providerPerEmailKwh = toKwhFromWattsMinutes(a.agent_device_power_w, e.email_handling_min) + (a.fixed_network * e.email_simple_size_gb);
+        const customerPerEmailKwh = customerEnabled(state)
+          ? toKwhFromWattsMinutes(a.customer_device_power_w, e.email_customer_read_min) + (customerNetwork * e.email_simple_size_gb)
+          : 0;
+        const perEmailKg = (providerPerEmailKwh + customerPerEmailKwh) * a.grid_factor;
+        const resolvedPerCaseKg = (toKwhFromWattsMinutes(a.agent_device_power_w, e.email_handling_min)
+          + (a.fixed_network * e.email_simple_size_gb)
+          + (customerEnabled(state) ? toKwhFromWattsMinutes(a.customer_device_power_w, e.email_customer_read_min) : 0)
+          + (customerEnabled(state) ? customerNetwork * e.email_simple_size_gb : 0)) * a.grid_factor;
+        const reopenPerCaseKwh = toKwhFromWattsMinutes(a.agent_device_power_w, e.email_handling_min)
+          + (customerEnabled(state) ? toKwhFromWattsMinutes(a.customer_device_power_w, e.email_customer_read_min) : 0)
+          + (a.fixed_network * e.email_simple_size_gb)
+          + (customerEnabled(state) ? customerNetwork * e.email_simple_size_gb : 0);
+        const attachmentTransmissionKg = e.email_attachment_total_gb * a.fixed_network * a.grid_factor;
+        const storageKg = e.email_storage_gb * e.email_retention_months * a.storage_kwh_per_gb_month * a.grid_factor;
+        const reopenKg = e.email_reopened_cases * reopenPerCaseKwh * a.grid_factor;
+        const unresolvedCases = Math.max(e.email_received - e.email_resolved, 0);
+        const unresolvedBacklogKg = unresolvedCases * resolvedPerCaseKg * a.email_backlog_penalty;
+        const totalKg = (e.email_sent * perEmailKg) + (e.email_resolved * resolvedPerCaseKg) + attachmentTransmissionKg + storageKg + reopenKg + unresolvedBacklogKg;
+        return {
+          emails_received: e.email_received,
+          emails_sent: e.email_sent,
+          resolved_email_cases: e.email_resolved,
+          reopen_rate: e.email_resolved ? e.email_reopened_cases / e.email_resolved : 0,
+          avg_email_handling_time_min: e.email_handling_min,
+          attachment_rate: e.email_sent ? e.email_attachment_total_gb / (e.email_sent * Math.max(e.email_simple_size_gb, 0.0001)) : 0,
+          attachment_total_gb: e.email_attachment_total_gb,
+          co2e_per_email_g: perEmailKg * 1000,
+          co2e_from_reopened_email_cases_kg: reopenKg,
+          co2e_from_attachment_transmission_kg: attachmentTransmissionKg,
+          co2e_from_attachment_storage_kg: storageKg,
+          co2e_from_unresolved_backlog_kg: unresolvedBacklogKg,
+          co2e_avoided_by_lower_email_volume_kg: Math.max((e.email_sent - e.email_resolved) * perEmailKg, 0),
+          estimated_total_co2e_kg: totalKg,
+          confidence_level: confidenceFromBoundary(state)
+        };
+      }
+
+      function calculateChatbot(state, calls, email) {
+        const a = state.assumptions;
+        const c = state.chatbot;
+        const customerSessionKwh = customerEnabled(state) ? toKwhFromWattsMinutes(a.customer_device_power_w, c.chatbot_session_min) : 0;
+        const perSessionKg = (c.chatbot_avg_turns * a.llm_kwh_per_turn + customerSessionKwh) * a.grid_factor;
+        const escalatedLoadKg = c.chatbot_escalated_sessions * ((calls.co2e_per_call_g / 1000) * 0.45 + (email.co2e_per_email_g / 1000) * 0.55);
+        const abandonedLoadKg = c.chatbot_abandoned_sessions * perSessionKg * 0.5;
+        const totalKg = (c.chatbot_sessions * perSessionKg) + escalatedLoadKg + abandonedLoadKg;
+        const failedSessionsKg = (c.chatbot_escalated_sessions + c.chatbot_abandoned_sessions) * perSessionKg;
+        const avoidedCallKg = c.chatbot_deflected_calls * (calls.co2e_per_call_g / 1000);
+        const avoidedEmailKg = c.chatbot_deflected_emails * (email.co2e_per_email_g / 1000);
+        const netAvoidedKg = avoidedCallKg + avoidedEmailKg - totalKg;
+        return {
+          chatbot_sessions: c.chatbot_sessions,
+          chatbot_resolved_sessions: c.chatbot_resolved_sessions,
+          chatbot_escalated_sessions: c.chatbot_escalated_sessions,
+          chatbot_abandoned_sessions: c.chatbot_abandoned_sessions,
+          bot_containment_rate: c.chatbot_sessions ? c.chatbot_resolved_sessions / c.chatbot_sessions : 0,
+          avg_turns: c.chatbot_avg_turns,
+          co2e_per_chatbot_session_g: perSessionKg * 1000,
+          co2e_per_chatbot_resolution_g: c.chatbot_resolved_sessions ? (totalKg / c.chatbot_resolved_sessions) * 1000 : 0,
+          co2e_added_by_failed_chatbot_sessions_kg: failedSessionsKg,
+          co2e_added_by_escalated_sessions_kg: escalatedLoadKg,
+          co2e_added_by_abandoned_sessions_kg: abandonedLoadKg,
+          co2e_avoided_by_call_deflection_kg: avoidedCallKg,
+          co2e_avoided_by_email_deflection_kg: avoidedEmailKg,
+          net_avoided_co2e_kg: netAvoidedKg,
+          estimated_total_co2e_kg: totalKg,
+          confidence_level: confidenceFromBoundary(state)
+        };
+      }
+
+      function calculateVoice(state, calls) {
+        const a = state.assumptions;
+        const v = state.voice;
+        const customerNetwork = getNetworkIntensity(state, v.voice_customer_network);
+        const sessionKwh = (a.fixed_network * a.voice_traffic_gb_per_min * v.voice_duration_min)
+          + (customerEnabled(state) ? customerNetwork * a.voice_traffic_gb_per_min * v.voice_duration_min : 0)
+          + (customerEnabled(state) ? toKwhFromWattsMinutes(a.customer_device_power_w, v.voice_duration_min) : 0)
+          + (v.voice_llm_turns * a.llm_kwh_per_turn);
+        const perSessionKg = sessionKwh * a.grid_factor;
+        const retryLoopMinutes = v.voice_sessions * v.voice_retry_loops * v.voice_retry_penalty_min;
+        const retryKwh = retryLoopMinutes * (
+          a.fixed_network * a.voice_traffic_gb_per_min
+          + (customerEnabled(state) ? customerNetwork * a.voice_traffic_gb_per_min : 0)
+          + (customerEnabled(state) ? (a.customer_device_power_w / 1000 / 60) : 0)
+        );
+        const retryKg = retryKwh * a.grid_factor;
+        const handoverKg = v.voice_transferred_sessions * (calls.co2e_per_call_g / 1000);
+        const resolutionOverheadKg = v.voice_resolved_sessions * perSessionKg * a.voice_resolution_overhead;
+        const totalKg = (v.voice_sessions * perSessionKg) + handoverKg + retryKg + resolutionOverheadKg;
+        const avoidedKg = v.voice_resolved_sessions * ((calls.co2e_per_call_g / 1000) - perSessionKg);
+        return {
+          voice_bot_sessions: v.voice_sessions,
+          voice_bot_resolved_sessions: v.voice_resolved_sessions,
+          voice_bot_transfer_rate: v.voice_sessions ? v.voice_transferred_sessions / v.voice_sessions : 0,
+          retry_loop_rate: v.voice_retry_loops,
+          intent_failure_rate: v.voice_sessions ? (v.voice_sessions - v.voice_resolved_sessions) / v.voice_sessions : 0,
+          co2e_per_voice_bot_session_g: perSessionKg * 1000,
+          co2e_per_voice_bot_resolution_g: v.voice_resolved_sessions ? (totalKg / v.voice_resolved_sessions) * 1000 : 0,
+          co2e_from_retry_loops_kg: retryKg,
+          co2e_added_by_voice_to_agent_handover_kg: handoverKg,
+          co2e_from_resolution_overhead_kg: resolutionOverheadKg,
+          co2e_avoided_by_voice_bot_resolution_kg: avoidedKg,
+          estimated_total_co2e_kg: totalKg,
+          confidence_level: state.boundary === "interaction" ? "low_medium" : "medium"
+        };
+      }
+
+      function calculateCases(state, executive, calls) {
+        const cw = state.cases_workforce;
+        const totalResolved = executive.resolved_cases_total;
+        const frictionMultiplier = 1 + cw.transfer_rate + (cw.escalation_rate * 1.25);
+        const casesCreated = cw.fcr ? (totalResolved * frictionMultiplier) / cw.fcr : (totalResolved * frictionMultiplier);
+        const repeatKg = totalResolved * (cw.repeat_contact_rate + (cw.transfer_rate * 0.35) + (cw.escalation_rate * 0.5)) * (executive.co2e_per_resolution_g / 1000);
+        return {
+          cases_created: casesCreated,
+          cases_closed: totalResolved,
+          fcr: cw.fcr,
+          repeat_contact_rate: cw.repeat_contact_rate,
+          transfer_rate: cw.transfer_rate,
+          escalation_rate: cw.escalation_rate,
+          co2e_per_resolution_g: executive.co2e_per_resolution_g,
+          co2e_from_repeat_contacts_kg: repeatKg,
+          confidence_level: calls.confidence_level
+        };
+      }
+
+      function calculateWorkforce(state, overview, executive) {
+        const cw = state.cases_workforce;
+        const occupancyRate = cw.scheduled_hours ? cw.productive_hours / cw.scheduled_hours : 0;
+        const contactsTotal = overview.reduce((sum, item) => sum + item.contacts, 0);
+        const workloadMultiplier = 1 + (cw.transfer_rate * 0.4) + (cw.escalation_rate * 0.6);
+        const teams = [
+          { team: "billing_team", channel: "call", active_agents: cw.call_team_agents, channelKg: overview.find((item) => item.channel === "call")?.estimated_co2e_kg || 0 },
+          { team: "returns_team", channel: "email", active_agents: cw.email_team_agents, channelKg: overview.find((item) => item.channel === "email")?.estimated_co2e_kg || 0 },
+          { team: "digital_service", channel: "chatbot", active_agents: cw.chatbot_team_agents, channelKg: overview.find((item) => item.channel === "chatbot")?.estimated_co2e_kg || 0 },
+          { team: "auth_team", channel: "voice_bot", active_agents: cw.voice_team_agents, channelKg: overview.find((item) => item.channel === "voice_bot")?.estimated_co2e_kg || 0 }
+        ].map((team) => ({
+          team: team.team,
+          channel: team.channel,
+          active_agents: team.active_agents,
+          occupancy_rate: occupancyRate,
+          contacts_per_agent: team.active_agents ? (overview.find((item) => item.channel === team.channel)?.contacts || 0) / team.active_agents : 0,
+          co2e_per_agent_kg: team.active_agents ? (team.channelKg * workloadMultiplier) / team.active_agents : 0,
+          co2e_per_productive_hour_g: cw.productive_hours ? (team.channelKg * 1000) / (cw.productive_hours * Math.max(team.active_agents / Math.max(cw.active_agent_count, 1), 0.01)) : 0
+        }));
+        return {
+          active_agent_count: cw.active_agent_count,
+          scheduled_hours: cw.scheduled_hours,
+          productive_hours: cw.productive_hours,
+          occupancy_rate: occupancyRate,
+          contacts_per_agent: cw.active_agent_count ? contactsTotal / cw.active_agent_count : 0,
+          cases_per_agent: cw.active_agent_count ? executive.resolved_cases_total / cw.active_agent_count : 0,
+          co2e_per_agent_kg: cw.active_agent_count ? (executive.total_estimated_co2e_kg * workloadMultiplier) / cw.active_agent_count : 0,
+          co2e_per_productive_hour_g: cw.productive_hours ? (executive.total_estimated_co2e_kg * 1000) / cw.productive_hours : 0,
+          confidence_level: "medium",
+          teams
+        };
+      }
+
+      function calculateRootCauses(state, executive, overview) {
+        const r = state.root_causes;
+        const groups = [
+          { driver_group: "billing", contacts: r.billing_contacts, repeat_contact_rate: r.billing_repeat_rate, preventable: true, source_label: "invoice_missing", contact_driver: "invoice_not_received", level_1: "billing", level_2: "invoicing", team: "billing_team", primary_channel: "call", secondary_channel: "email" },
+          { driver_group: "shipping", contacts: r.shipping_contacts, repeat_contact_rate: r.shipping_repeat_rate, preventable: true, source_label: "track_order", contact_driver: "where_is_my_order", level_1: "shipping", level_2: "tracking", team: "returns_team", primary_channel: "email", secondary_channel: "chatbot" },
+          { driver_group: "returns", contacts: r.returns_contacts, repeat_contact_rate: r.returns_repeat_rate, preventable: false, source_label: "return_docs", contact_driver: "return_label_request", level_1: "returns", level_2: "documents", team: "returns_team", primary_channel: "email", secondary_channel: null },
+          { driver_group: "authentication", contacts: r.authentication_contacts, repeat_contact_rate: r.authentication_repeat_rate, preventable: true, source_label: "reset_pw", contact_driver: "password_reset", level_1: "account_access", level_2: "authentication", team: "auth_team", primary_channel: "voice_bot", secondary_channel: "call" }
+        ];
+        const weightedTotal = groups.reduce((sum, group) => sum + (group.contacts * (1 + group.repeat_contact_rate)), 0) || 1;
+        const channelMap = Object.fromEntries(overview.map((item) => [item.channel, item.estimated_co2e_kg]));
+        const globalFcr = state.cases_workforce.fcr || 0.68;
+        const driverGroups = groups.map((group) => {
+          const share = (group.contacts * (1 + group.repeat_contact_rate)) / weightedTotal;
+          const co2 = executive.total_estimated_co2e_kg * share;
+          const resolved = group.contacts * globalFcr;
+          return {
+            driver_group: group.driver_group,
+            contacts: group.contacts,
+            resolved_cases: resolved,
+            preventable: group.preventable,
+            repeat_contact_rate: group.repeat_contact_rate,
+            co2e_kg: co2,
+            co2e_per_case_g: resolved ? (co2 * 1000) / resolved : 0
+          };
+        }).sort((a, b) => b.co2e_kg - a.co2e_kg);
+        const topDrivers = groups.map((group) => {
+          const match = driverGroups.find((item) => item.driver_group === group.driver_group);
+          return {
+            contact_driver: group.contact_driver,
+            source_label: group.source_label,
+            driver_group: group.driver_group,
+            contacts: group.contacts,
+            resolved_cases: match.resolved_cases,
+            preventable: group.preventable,
+            co2e_kg: match.co2e_kg,
+            co2e_per_case_g: match.co2e_per_case_g
+          };
+        }).sort((a, b) => b.co2e_kg - a.co2e_kg);
+        const taxonomyExamples = groups.slice(0, 3).map((group) => ({
+          source_label: group.source_label,
+          normalized_driver: group.contact_driver,
+          driver_group: group.driver_group,
+          level_1: group.level_1,
+          level_2: group.level_2,
+          preventable: group.preventable
+        }));
+        const driverGroupByChannel = groups.flatMap((group) => {
+          const share = (group.contacts * (1 + group.repeat_contact_rate)) / weightedTotal;
+          const rows = [];
+          if (group.primary_channel && channelMap[group.primary_channel]) {
+            rows.push({ driver_group: group.driver_group, channel: group.primary_channel, co2e_kg: channelMap[group.primary_channel] * share });
+          }
+          if (group.secondary_channel && channelMap[group.secondary_channel]) {
+            rows.push({ driver_group: group.driver_group, channel: group.secondary_channel, co2e_kg: channelMap[group.secondary_channel] * share * 0.7 });
+          }
+          return rows;
+        });
+        const driverGroupByTeam = groups.map((group) => {
+          const match = driverGroups.find((item) => item.driver_group === group.driver_group);
+          return {
+            driver_group: group.driver_group,
+            team: group.team,
+            co2e_kg: match.co2e_kg
+          };
+        });
+        const topGroup = driverGroups[0];
+        const preventableKg = driverGroups.filter((item) => item.preventable).reduce((sum, item) => sum + item.co2e_kg, 0);
+        const totalContacts = groups.reduce((sum, item) => sum + item.contacts, 0) || 1;
+        const preventableContacts = groups.filter((item) => item.preventable).reduce((sum, item) => sum + item.contacts, 0);
+        return {
+          top_contact_driver: r.top_contact_driver,
+          top_driver_group: topGroup?.driver_group || "billing",
+          preventable_contact_rate: preventableContacts / totalContacts,
+          co2e_from_preventable_drivers_kg: preventableKg,
+          highest_impact_driver_group: topGroup?.driver_group || "billing",
+          confidence_level: "medium",
+          driver_groups: driverGroups,
+          top_drivers: topDrivers,
+          taxonomy_examples: taxonomyExamples,
+          driver_group_by_channel: driverGroupByChannel,
+          driver_group_by_team: driverGroupByTeam
+        };
+      }
+
+      function calculateBaselineComparison(state, executive, email, chatbot) {
+        const baselineChatbotFailureOverhang = 0.25;
+        const baselineTotal = executive.total_estimated_co2e_kg
+          + (email.co2e_from_reopened_email_cases_kg * state.assumptions.email_backlog_penalty)
+          + (chatbot.co2e_added_by_failed_chatbot_sessions_kg * baselineChatbotFailureOverhang)
+          + state.assumptions.baseline_fixed_overhead_kg;
+        return {
+          baseline_period: "2026-01",
+          baseline_total_estimated_co2e_kg: baselineTotal,
+          baseline_aht_min: state.calls.call_aht_min + 0.9,
+          baseline_reopen_rate: Math.min(email.reopen_rate + 0.025, 1),
+          baseline_bot_containment_rate: Math.max(chatbot.bot_containment_rate - 0.15, 0),
+          delta_total_estimated_co2e_kg: executive.total_estimated_co2e_kg - baselineTotal,
+          delta_total_estimated_co2e_pct: baselineTotal ? (executive.total_estimated_co2e_kg - baselineTotal) / baselineTotal : 0,
+          delta_aht_min: -0.9,
+          delta_reopen_rate: -0.025,
+          delta_bot_containment_rate: 0.15
+        };
+      }
+
+      function calculateResults(state) {
+        const calls = calculateCalls(state);
+        const email = calculateEmail(state);
+        const chatbot = calculateChatbot(state, calls, email);
+        const voice = calculateVoice(state, calls);
+        const overview = [
+          { channel: "call", contacts: calls.inbound_calls, resolved_cases: calls.resolved_calls, estimated_co2e_kg: calls.estimated_total_co2e_kg, co2e_per_resolution_g: calls.co2e_per_call_g, confidence_level: calls.confidence_level },
+          { channel: "email", contacts: email.emails_sent, resolved_cases: email.resolved_email_cases, estimated_co2e_kg: email.estimated_total_co2e_kg, co2e_per_resolution_g: email.co2e_per_email_g, confidence_level: email.confidence_level },
+          { channel: "chatbot", contacts: chatbot.chatbot_sessions, resolved_cases: chatbot.chatbot_resolved_sessions, estimated_co2e_kg: chatbot.estimated_total_co2e_kg, co2e_per_resolution_g: chatbot.co2e_per_chatbot_resolution_g, confidence_level: chatbot.confidence_level },
+          { channel: "voice_bot", contacts: voice.voice_bot_sessions, resolved_cases: voice.voice_bot_resolved_sessions, estimated_co2e_kg: voice.estimated_total_co2e_kg, co2e_per_resolution_g: voice.co2e_per_voice_bot_resolution_g, confidence_level: voice.confidence_level }
+        ];
+        const contactsTotal = overview.reduce((sum, item) => sum + item.contacts, 0);
+        const resolvedCasesTotal = overview.reduce((sum, item) => sum + item.resolved_cases, 0);
+        const totalKg = overview.reduce((sum, item) => sum + item.estimated_co2e_kg, 0);
+        const executive = {
+          contacts_total: contactsTotal,
+          resolved_cases_total: resolvedCasesTotal,
+          aht_min: state.calls.call_aht_min,
+          fcr: state.cases_workforce.fcr,
+          reopen_rate: email.reopen_rate,
+          bot_containment_rate: chatbot.bot_containment_rate,
+          total_estimated_co2e_kg: totalKg,
+          co2e_per_resolution_g: resolvedCasesTotal ? (totalKg / resolvedCasesTotal) * 1000 : 0,
+          avoided_co2e_vs_baseline_kg: chatbot.net_avoided_co2e_kg + voice.co2e_avoided_by_voice_bot_resolution_kg,
+          confidence_level: "medium"
+        };
+        const cases = calculateCases(state, executive, calls);
+        const workforce = calculateWorkforce(state, overview, executive);
+        const rootCauses = calculateRootCauses(state, executive, overview);
+        const baselineComparison = calculateBaselineComparison(state, executive, email, chatbot);
+        const drivers = [
+          { driver: "queue_time", channel: "call", estimated_co2e_kg: calls.co2e_from_queue_time_kg, type: "avoidable_load" },
+          { driver: "reopened_email_cases", channel: "email", estimated_co2e_kg: email.co2e_from_reopened_email_cases_kg, type: "avoidable_load" },
+          { driver: "attachment_transmission", channel: "email", estimated_co2e_kg: email.co2e_from_attachment_transmission_kg, type: "payload_load" },
+          { driver: "chatbot_call_deflection", channel: "chatbot", estimated_co2e_kg: -chatbot.co2e_avoided_by_call_deflection_kg, type: "avoided_load" },
+          { driver: "voice_bot_handover", channel: "voice_bot", estimated_co2e_kg: voice.co2e_added_by_voice_to_agent_handover_kg, type: "automation_failure_load" }
+        ];
+        return {
+          metadata: {
+            organization_id: "org_v2_demo",
+            period_start: "2026-04-01",
+            period_end: "2026-04-30",
+            assumption_set_id: "v2_interactive_defaults",
+            reporting_boundary: state.boundary === "interaction" ? "provider_plus_customer_interaction" : "provider_side_operational",
+            schema_version: "v0.2-demo",
+            notes: "Live calculator output from demo-calculator-v2.html. baseline_comparison is simulated from current-period inputs plus configurable offsets — not a verified before/after measurement. Root cause groups are fixed to four demo categories (billing, shipping, returns, authentication)."
+          },
+          executive: Object.fromEntries(Object.entries(executive).map(([key, value]) => [key, typeof value === "number" ? round(value) : value])),
+          overview_by_channel: overview.map((item) => Object.fromEntries(Object.entries(item).map(([key, value]) => [key, typeof value === "number" ? round(value) : value]))),
+          calls: Object.fromEntries(Object.entries(calls).map(([key, value]) => [key, typeof value === "number" ? round(value) : value])),
+          email: Object.fromEntries(Object.entries(email).map(([key, value]) => [key, typeof value === "number" ? round(value) : value])),
+          chatbot: Object.fromEntries(Object.entries(chatbot).map(([key, value]) => [key, typeof value === "number" ? round(value) : value])),
+          voice_bot: Object.fromEntries(Object.entries(voice).map(([key, value]) => [key, typeof value === "number" ? round(value) : value])),
+          cases: Object.fromEntries(Object.entries(cases).map(([key, value]) => [key, typeof value === "number" ? round(value) : value])),
+          workforce: {
+            ...Object.fromEntries(Object.entries(workforce).filter(([key]) => key !== "teams").map(([key, value]) => [key, typeof value === "number" ? round(value) : value])),
+            teams: workforce.teams.map((team) => Object.fromEntries(Object.entries(team).map(([key, value]) => [key, typeof value === "number" ? round(value) : value])))
+          },
+          root_causes: {
+            ...Object.fromEntries(Object.entries(rootCauses).filter(([key]) => !["driver_groups", "top_drivers", "taxonomy_examples", "driver_group_by_channel", "driver_group_by_team"].includes(key)).map(([key, value]) => [key, typeof value === "number" ? round(value) : value])),
+            driver_groups: rootCauses.driver_groups.map((item) => Object.fromEntries(Object.entries(item).map(([key, value]) => [key, typeof value === "number" ? round(value) : value]))),
+            top_drivers: rootCauses.top_drivers.map((item) => Object.fromEntries(Object.entries(item).map(([key, value]) => [key, typeof value === "number" ? round(value) : value]))),
+            taxonomy_examples: rootCauses.taxonomy_examples,
+            driver_group_by_channel: rootCauses.driver_group_by_channel.map((item) => Object.fromEntries(Object.entries(item).map(([key, value]) => [key, typeof value === "number" ? round(value) : value]))),
+            driver_group_by_team: rootCauses.driver_group_by_team.map((item) => Object.fromEntries(Object.entries(item).map(([key, value]) => [key, typeof value === "number" ? round(value) : value])))
+          },
+          drivers: drivers.map((item) => Object.fromEntries(Object.entries(item).map(([key, value]) => [key, typeof value === "number" ? round(value) : value]))),
+          baseline_comparison: Object.fromEntries(Object.entries(baselineComparison).map(([key, value]) => [key, typeof value === "number" ? round(value) : value])),
+          methodology_flags: {
+            customer_side_assumptions_used: customerEnabled(state),
+            storage_assumptions_used: state.assumptions.storage_kwh_per_gb_month > 0,
+            llm_energy_assumptions_used: state.assumptions.llm_kwh_per_turn > 0,
+            aggregated_metrics_used: true,
+            event_level_data_used: false
+          }
+        };
+      }
+
+      window.DemoCalculatorV2 = { calculateResults, cloneDefaults, mergeState };
+    }());
+
+    const { calculateResults, cloneDefaults, mergeState } = window.DemoCalculatorV2;
+
+    const sectionFields = {
+      assumptions: [
+        "grid_factor",
+        "fixed_network",
+        "mobile_network",
+        "llm_kwh_per_turn",
+        "voice_traffic_gb_per_min",
+        "agent_device_power_w",
+        "customer_device_power_w",
+        "storage_kwh_per_gb_month",
+        "email_backlog_penalty",
+        "voice_resolution_overhead",
+        "baseline_fixed_overhead_kg"
+      ],
+      calls: [
+        "call_resolved",
+        "call_aht_min",
+        "call_queue_min",
+        "call_hold_min",
+        "call_acw_min",
+        "call_callback_retry_attempts",
+        "call_callback_retry_min",
+        "call_customer_network"
+      ],
+      email: [
+        "email_sent",
+        "email_received",
+        "email_resolved",
+        "email_reopened_cases",
+        "email_handling_min",
+        "email_customer_read_min",
+        "email_simple_size_gb",
+        "email_attachment_total_gb",
+        "email_storage_gb",
+        "email_retention_months",
+        "email_customer_network"
+      ],
+      chatbot: [
+        "chatbot_sessions",
+        "chatbot_resolved_sessions",
+        "chatbot_escalated_sessions",
+        "chatbot_abandoned_sessions",
+        "chatbot_avg_turns",
+        "chatbot_session_min",
+        "chatbot_deflected_calls",
+        "chatbot_deflected_emails"
+      ],
+      voice: [
+        "voice_sessions",
+        "voice_resolved_sessions",
+        "voice_transferred_sessions",
+        "voice_duration_min",
+        "voice_retry_loops",
+        "voice_retry_penalty_min",
+        "voice_llm_turns",
+        "voice_customer_network"
+      ],
+      cases_workforce: [
+        "fcr",
+        "repeat_contact_rate",
+        "transfer_rate",
+        "escalation_rate",
+        "active_agent_count",
+        "scheduled_hours",
+        "productive_hours",
+        "call_team_agents",
+        "email_team_agents",
+        "chatbot_team_agents",
+        "voice_team_agents"
+      ],
+      root_causes: [
+        "top_contact_driver",
+        "billing_contacts",
+        "shipping_contacts",
+        "returns_contacts",
+        "authentication_contacts",
+        "billing_repeat_rate",
+        "shipping_repeat_rate",
+        "returns_repeat_rate",
+        "authentication_repeat_rate"
+      ]
+    };
+
+    const fieldIds = [
+      "grid_factor",
+      "fixed_network",
+      "mobile_network",
+      "llm_kwh_per_turn",
+      "voice_traffic_gb_per_min",
+      "agent_device_power_w",
+      "customer_device_power_w",
+      "storage_kwh_per_gb_month",
+      "email_backlog_penalty",
+      "voice_resolution_overhead",
+      "baseline_fixed_overhead_kg",
+      "call_resolved",
+      "call_aht_min",
+      "call_queue_min",
+      "call_hold_min",
+      "call_acw_min",
+      "call_callback_retry_attempts",
+      "call_callback_retry_min",
+      "call_customer_network",
+      "email_sent",
+      "email_received",
+      "email_resolved",
+      "email_reopened_cases",
+      "email_handling_min",
+      "email_customer_read_min",
+      "email_simple_size_gb",
+      "email_attachment_total_gb",
+      "email_storage_gb",
+      "email_retention_months",
+      "email_customer_network",
+      "chatbot_sessions",
+      "chatbot_resolved_sessions",
+      "chatbot_escalated_sessions",
+      "chatbot_abandoned_sessions",
+      "chatbot_avg_turns",
+      "chatbot_session_min",
+      "chatbot_deflected_calls",
+      "chatbot_deflected_emails",
+      "voice_sessions",
+      "voice_resolved_sessions",
+      "voice_transferred_sessions",
+      "voice_duration_min",
+      "voice_retry_loops",
+      "voice_retry_penalty_min",
+      "voice_llm_turns",
+      "voice_customer_network",
+      "fcr",
+      "repeat_contact_rate",
+      "transfer_rate",
+      "escalation_rate",
+      "active_agent_count",
+      "scheduled_hours",
+      "productive_hours",
+      "call_team_agents",
+      "email_team_agents",
+      "chatbot_team_agents",
+      "voice_team_agents",
+      "top_contact_driver",
+      "billing_contacts",
+      "shipping_contacts",
+      "returns_contacts",
+      "authentication_contacts",
+      "billing_repeat_rate",
+      "shipping_repeat_rate",
+      "returns_repeat_rate",
+      "authentication_repeat_rate"
+    ];
+
+    let state = cloneDefaults();
+    let latestResult = calculateResults(state);
+    let latestAnnotatedResult = latestResult;
+
+    function fmt(value, digits = 0) {
+      return Number(value || 0).toLocaleString("en-US", {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      });
+    }
+
+    function kg(value) {
+      return `${fmt(value, Math.abs(value) < 10 ? 1 : 0)} kg`;
+    }
+
+    function grams(value) {
+      return `${fmt(value, Math.abs(value) < 10 ? 2 : 1)} g`;
+    }
+
+    function titleize(value) {
+      return String(value || "")
+        .replaceAll("_", " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+    }
+
+    function readNumber(id) {
+      const raw = String(document.getElementById(id).value ?? "").trim();
+      if (raw === "") return 0;
+      const normalized = raw.replace(",", ".");
+      const value = Number(normalized);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function isFieldFilled(id) {
+      const element = document.getElementById(id);
+      if (!element) return false;
+      if (element.tagName === "SELECT") return false;
+      return String(element.value ?? "").trim() !== "";
+    }
+
+    function isSectionActive(section) {
+      return (sectionFields[section] || []).some((id) => isFieldFilled(id));
+    }
+
+    function getSectionForField(fieldId) {
+      return Object.entries(sectionFields).find(([, ids]) => ids.includes(fieldId))?.[0] || null;
+    }
+
+    function getActiveSections() {
+      return {
+        calls: isSectionActive("calls"),
+        email: isSectionActive("email"),
+        chatbot: isSectionActive("chatbot"),
+        voice: isSectionActive("voice"),
+        cases_workforce: isSectionActive("cases_workforce"),
+        root_causes: isSectionActive("root_causes")
+      };
+    }
+
+    function downloadJson(filename, data) {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(value) {
+      const text = value == null ? "" : String(value);
+      if (/[",\n]/.test(text)) {
+        return `"${text.replace(/"/g, "\"\"")}"`;
+      }
+      return text;
+    }
+
+    function downloadCsv(filename, rows) {
+      const csv = rows.map((row) => row.map(csvEscape).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function buildResultCsvRows(result) {
+      const rows = [["section", "path", "value"]];
+
+      function visit(section, path, value) {
+        if (Array.isArray(value)) {
+          value.forEach((item, index) => {
+            visit(section, `${path}[${index}]`, item);
+          });
+          return;
+        }
+
+        if (value && typeof value === "object") {
+          Object.entries(value).forEach(([key, nestedValue]) => {
+            visit(section, path ? `${path}.${key}` : key, nestedValue);
+          });
+          return;
+        }
+
+        rows.push([section, path, value]);
+      }
+
+      Object.entries(result).forEach(([section, value]) => {
+        visit(section, section, value);
+      });
+
+      return rows;
+    }
+
+    function syncInputsFromState() {
+      document.querySelectorAll("#boundary-toggle button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.value === state.boundary);
+      });
+
+      Object.entries(state.assumptions).forEach(([key, value]) => {
+        document.getElementById(key).value = value;
+      });
+      Object.entries(state.calls).forEach(([key, value]) => {
+        document.getElementById(key).value = value;
+      });
+      Object.entries(state.email).forEach(([key, value]) => {
+        document.getElementById(key).value = value;
+      });
+      Object.entries(state.chatbot).forEach(([key, value]) => {
+        document.getElementById(key).value = value;
+      });
+      Object.entries(state.voice).forEach(([key, value]) => {
+        document.getElementById(key).value = value;
+      });
+      Object.entries(state.cases_workforce).forEach(([key, value]) => {
+        document.getElementById(key).value = value;
+      });
+      Object.entries(state.root_causes).forEach(([key, value]) => {
+        document.getElementById(key).value = value;
+      });
+    }
+
+    function syncStateFromInputs() {
+      const defaults = cloneDefaults();
+      state.assumptions.grid_factor = isFieldFilled("grid_factor") ? readNumber("grid_factor") : defaults.assumptions.grid_factor;
+      state.assumptions.fixed_network = isFieldFilled("fixed_network") ? readNumber("fixed_network") : defaults.assumptions.fixed_network;
+      state.assumptions.mobile_network = isFieldFilled("mobile_network") ? readNumber("mobile_network") : defaults.assumptions.mobile_network;
+      state.assumptions.llm_kwh_per_turn = isFieldFilled("llm_kwh_per_turn") ? readNumber("llm_kwh_per_turn") : defaults.assumptions.llm_kwh_per_turn;
+      state.assumptions.voice_traffic_gb_per_min = isFieldFilled("voice_traffic_gb_per_min") ? readNumber("voice_traffic_gb_per_min") : defaults.assumptions.voice_traffic_gb_per_min;
+      state.assumptions.agent_device_power_w = isFieldFilled("agent_device_power_w") ? readNumber("agent_device_power_w") : defaults.assumptions.agent_device_power_w;
+      state.assumptions.customer_device_power_w = isFieldFilled("customer_device_power_w") ? readNumber("customer_device_power_w") : defaults.assumptions.customer_device_power_w;
+      state.assumptions.storage_kwh_per_gb_month = isFieldFilled("storage_kwh_per_gb_month") ? readNumber("storage_kwh_per_gb_month") : defaults.assumptions.storage_kwh_per_gb_month;
+      state.assumptions.email_backlog_penalty = isFieldFilled("email_backlog_penalty") ? readNumber("email_backlog_penalty") : defaults.assumptions.email_backlog_penalty;
+      state.assumptions.voice_resolution_overhead = isFieldFilled("voice_resolution_overhead") ? readNumber("voice_resolution_overhead") : defaults.assumptions.voice_resolution_overhead;
+      state.assumptions.baseline_fixed_overhead_kg = isFieldFilled("baseline_fixed_overhead_kg") ? readNumber("baseline_fixed_overhead_kg") : defaults.assumptions.baseline_fixed_overhead_kg;
+
+      state.calls.call_resolved = readNumber("call_resolved");
+      state.calls.call_aht_min = readNumber("call_aht_min");
+      state.calls.call_queue_min = readNumber("call_queue_min");
+      state.calls.call_hold_min = readNumber("call_hold_min");
+      state.calls.call_acw_min = readNumber("call_acw_min");
+      state.calls.call_callback_retry_attempts = readNumber("call_callback_retry_attempts");
+      state.calls.call_callback_retry_min = readNumber("call_callback_retry_min");
+      state.calls.call_customer_network = document.getElementById("call_customer_network").value;
+
+      state.email.email_sent = readNumber("email_sent");
+      state.email.email_received = readNumber("email_received");
+      state.email.email_resolved = readNumber("email_resolved");
+      state.email.email_reopened_cases = readNumber("email_reopened_cases");
+      state.email.email_handling_min = readNumber("email_handling_min");
+      state.email.email_customer_read_min = readNumber("email_customer_read_min");
+      state.email.email_simple_size_gb = readNumber("email_simple_size_gb");
+      state.email.email_attachment_total_gb = readNumber("email_attachment_total_gb");
+      state.email.email_storage_gb = readNumber("email_storage_gb");
+      state.email.email_retention_months = readNumber("email_retention_months");
+      state.email.email_customer_network = document.getElementById("email_customer_network").value;
+
+      state.chatbot.chatbot_sessions = readNumber("chatbot_sessions");
+      state.chatbot.chatbot_resolved_sessions = readNumber("chatbot_resolved_sessions");
+      state.chatbot.chatbot_escalated_sessions = readNumber("chatbot_escalated_sessions");
+      state.chatbot.chatbot_abandoned_sessions = readNumber("chatbot_abandoned_sessions");
+      state.chatbot.chatbot_avg_turns = readNumber("chatbot_avg_turns");
+      state.chatbot.chatbot_session_min = readNumber("chatbot_session_min");
+      state.chatbot.chatbot_deflected_calls = readNumber("chatbot_deflected_calls");
+      state.chatbot.chatbot_deflected_emails = readNumber("chatbot_deflected_emails");
+
+      state.voice.voice_sessions = readNumber("voice_sessions");
+      state.voice.voice_resolved_sessions = readNumber("voice_resolved_sessions");
+      state.voice.voice_transferred_sessions = readNumber("voice_transferred_sessions");
+      state.voice.voice_duration_min = readNumber("voice_duration_min");
+      state.voice.voice_retry_loops = readNumber("voice_retry_loops");
+      state.voice.voice_retry_penalty_min = readNumber("voice_retry_penalty_min");
+      state.voice.voice_llm_turns = readNumber("voice_llm_turns");
+      state.voice.voice_customer_network = document.getElementById("voice_customer_network").value;
+
+      state.cases_workforce.fcr = readNumber("fcr");
+      state.cases_workforce.repeat_contact_rate = readNumber("repeat_contact_rate");
+      state.cases_workforce.transfer_rate = readNumber("transfer_rate");
+      state.cases_workforce.escalation_rate = readNumber("escalation_rate");
+      state.cases_workforce.active_agent_count = readNumber("active_agent_count");
+      state.cases_workforce.scheduled_hours = readNumber("scheduled_hours");
+      state.cases_workforce.productive_hours = readNumber("productive_hours");
+      state.cases_workforce.call_team_agents = readNumber("call_team_agents");
+      state.cases_workforce.email_team_agents = readNumber("email_team_agents");
+      state.cases_workforce.chatbot_team_agents = readNumber("chatbot_team_agents");
+      state.cases_workforce.voice_team_agents = readNumber("voice_team_agents");
+
+      state.root_causes.top_contact_driver = document.getElementById("top_contact_driver").value.trim();
+      state.root_causes.billing_contacts = readNumber("billing_contacts");
+      state.root_causes.shipping_contacts = readNumber("shipping_contacts");
+      state.root_causes.returns_contacts = readNumber("returns_contacts");
+      state.root_causes.authentication_contacts = readNumber("authentication_contacts");
+      state.root_causes.billing_repeat_rate = readNumber("billing_repeat_rate");
+      state.root_causes.shipping_repeat_rate = readNumber("shipping_repeat_rate");
+      state.root_causes.returns_repeat_rate = readNumber("returns_repeat_rate");
+      state.root_causes.authentication_repeat_rate = readNumber("authentication_repeat_rate");
+    }
+
+    function applySectionDefaults(section) {
+      const defaults = cloneDefaults();
+      if (section === "assumptions") {
+        state.boundary = defaults.boundary;
+        document.querySelectorAll("#boundary-toggle button").forEach((button) => {
+          button.classList.toggle("active", button.dataset.value === state.boundary);
+        });
+      }
+      const values = defaults[section];
+      Object.entries(values).forEach(([key, value]) => {
+        const element = document.getElementById(key);
+        if (element) element.value = value;
+      });
+    }
+
+    function buildCalculationState(targetSection) {
+      const calcState = mergeState(cloneDefaults(), state);
+      if (!["assumptions", "cases_workforce", "root_causes"].includes(targetSection)) return calcState;
+
+      const defaults = cloneDefaults();
+      const activeSections = getActiveSections();
+      const channelSections = ["calls", "email", "chatbot", "voice"];
+      const hasAnyChannelInput = channelSections.some((section) => activeSections[section]);
+      if (hasAnyChannelInput) return calcState;
+
+      channelSections.forEach((section) => {
+        calcState[section] = defaults[section];
+      });
+
+      return calcState;
+    }
+
+    function clearSection(section) {
+      (sectionFields[section] || []).forEach((id) => {
+        const element = document.getElementById(id);
+        if (!element) return;
+        if (element.tagName === "SELECT") {
+          element.selectedIndex = 0;
+        } else {
+          element.value = "";
+        }
+      });
+    }
+
+    function getSummaryChannelActivation(targetSection) {
+      const activeSections = getActiveSections();
+      const hasAnyChannelInput = activeSections.calls || activeSections.email || activeSections.chatbot || activeSections.voice;
+
+      if (targetSection === "calls") return { call: true, email: false, chatbot: false, voice_bot: false };
+      if (targetSection === "email") return { call: false, email: true, chatbot: false, voice_bot: false };
+      if (targetSection === "chatbot") return { call: false, email: false, chatbot: true, voice_bot: false };
+      if (targetSection === "voice") return { call: false, email: false, chatbot: false, voice_bot: true };
+      if (targetSection === "assumptions" && !hasAnyChannelInput) return { call: true, email: true, chatbot: true, voice_bot: true };
+
+      if (["cases_workforce", "root_causes"].includes(targetSection)) {
+        if (!hasAnyChannelInput) {
+          return { call: true, email: true, chatbot: true, voice_bot: true };
+        }
+        return {
+          call: activeSections.calls,
+          email: activeSections.email,
+          chatbot: activeSections.chatbot,
+          voice_bot: activeSections.voice
+        };
+      }
+
+      return {
+        call: activeSections.calls,
+        email: activeSections.email,
+        chatbot: activeSections.chatbot,
+        voice_bot: activeSections.voice
+      };
+    }
+
+    function renderSummary(result, targetSection = null) {
+      if (targetSection === "calls" && !state.calls.call_resolved && state.calls.call_callback_retry_attempts) {
+        const retryCount = state.calls.call_callback_retry_attempts;
+        const retryKg = result.calls.co2e_from_callback_retries_kg;
+        document.getElementById("boundary-label").textContent = state.boundary === "interaction" ? "Provider + customer" : "Provider-side";
+        document.getElementById("summary-total").textContent = kg(retryKg);
+        document.getElementById("summary-copy").textContent = `${fmt(retryCount)} callback retry attempts with ${grams(result.calls.co2e_per_callback_retry_g)} per retry attempt.`;
+        document.getElementById("metric-per-resolution").textContent = grams(result.calls.co2e_per_callback_retry_g);
+        document.getElementById("metric-avoided").textContent = kg(0);
+        document.getElementById("metric-top-channel").textContent = "Calls";
+        document.getElementById("metric-top-copy").textContent = `${kg(retryKg)} currently comes from callback retry load.`;
+        document.getElementById("channel-bars").innerHTML = `
+          <div class="bar-card">
+            <div class="bar-top">
+              <span>Callback Retries</span>
+              <strong>${kg(retryKg)}</strong>
+            </div>
+            <div class="bar-track"><div class="bar-fill call" style="width:100%"></div></div>
+          </div>
+        `;
+        document.getElementById("driver-list").innerHTML = [
+          { label: "Callback Retries", value: kg(retryKg), copy: "total callback retry load" },
+          { label: "CO2e / Retry", value: grams(result.calls.co2e_per_callback_retry_g), copy: "average per retry attempt" },
+          { label: "Retry Attempts", value: fmt(retryCount), copy: "extra outbound callback attempts" },
+          { label: "Avg Retry Min", value: `${fmt(state.calls.call_callback_retry_min, 1)} min`, copy: "duration per retry attempt" }
+        ].map((item) => `
+          <div class="metric">
+            <div class="metric-label">${item.label}</div>
+            <div class="metric-value">${item.value}</div>
+            <div class="metric-copy">${item.copy}</div>
+          </div>
+        `).join("");
+        return;
+      }
+
+      if (targetSection === "cases_workforce") {
+        document.getElementById("boundary-label").textContent = "Workforce view";
+        document.getElementById("summary-total").textContent = kg(result.cases.co2e_from_repeat_contacts_kg);
+        document.getElementById("summary-copy").textContent = `${fmt(result.cases.cases_created)} created cases at ${fmt(result.cases.fcr * 100, 1)}% FCR, ${fmt(result.workforce.cases_per_agent, 1)} cases per agent, and ${fmt(result.workforce.occupancy_rate * 100, 1)}% occupancy.`;
+        document.getElementById("metric-per-resolution").textContent = grams(result.cases.co2e_per_resolution_g);
+        document.getElementById("metric-avoided").textContent = kg(result.workforce.co2e_per_agent_kg);
+        document.getElementById("metric-top-channel").textContent = "Workforce";
+        document.getElementById("metric-top-copy").textContent = `${kg(result.workforce.co2e_per_agent_kg)} per agent across ${fmt(result.workforce.active_agent_count)} active agents.`;
+        document.getElementById("channel-bars").innerHTML = result.workforce.teams.map((item) => {
+          const width = Math.max((item.co2e_per_agent_kg / Math.max(...result.workforce.teams.map((team) => team.co2e_per_agent_kg), 1)) * 100, 2);
+          return `
+            <div class="bar-card">
+              <div class="bar-top">
+                <span>${titleize(item.team)}</span>
+                <strong>${kg(item.co2e_per_agent_kg)}</strong>
+              </div>
+              <div class="bar-track"><div class="bar-fill email" style="width:${width}%"></div></div>
+            </div>
+          `;
+        }).join("");
+        document.getElementById("driver-list").innerHTML = [
+          { label: "Repeat Contact CO2e", value: kg(result.cases.co2e_from_repeat_contacts_kg), copy: "avoidable service load" },
+          { label: "Cases / Agent", value: fmt(result.workforce.cases_per_agent, 1), copy: "resolved cases per active agent" },
+          { label: "Occupancy", value: `${fmt(result.workforce.occupancy_rate * 100, 1)}%`, copy: "share of productive time" },
+          { label: "CO2e / Agent", value: kg(result.workforce.co2e_per_agent_kg), copy: "intensity per active agent" }
+        ].map((item) => `
+          <div class="metric">
+            <div class="metric-label">${item.label}</div>
+            <div class="metric-value">${item.value}</div>
+            <div class="metric-copy">${item.copy}</div>
+          </div>
+        `).join("");
+        return;
+      }
+
+      if (targetSection === "root_causes") {
+        document.getElementById("boundary-label").textContent = "Root cause view";
+        document.getElementById("summary-total").textContent = kg(result.root_causes.co2e_from_preventable_drivers_kg);
+        document.getElementById("summary-copy").textContent = `${titleize(result.root_causes.top_driver_group)} is currently the top driver group with ${fmt(result.root_causes.preventable_contact_rate * 100, 1)}% preventable contact share.`;
+        document.getElementById("metric-per-resolution").textContent = grams(result.root_causes.top_drivers?.[0]?.co2e_per_case_g || 0);
+        document.getElementById("metric-avoided").textContent = kg(result.root_causes.co2e_from_preventable_drivers_kg);
+        document.getElementById("metric-top-channel").textContent = titleize(result.root_causes.top_driver_group);
+        document.getElementById("metric-top-copy").textContent = `${titleize(result.root_causes.top_contact_driver)} is the highlighted top driver.`;
+        document.getElementById("channel-bars").innerHTML = result.root_causes.driver_groups.map((item) => {
+          const width = Math.max((item.co2e_kg / Math.max(...result.root_causes.driver_groups.map((group) => group.co2e_kg), 1)) * 100, 2);
+          return `
+            <div class="bar-card">
+              <div class="bar-top">
+                <span>${titleize(item.driver_group)}</span>
+                <strong>${kg(item.co2e_kg)}</strong>
+              </div>
+              <div class="bar-track"><div class="bar-fill call" style="width:${width}%"></div></div>
+            </div>
+          `;
+        }).join("");
+        document.getElementById("driver-list").innerHTML = [
+          { label: "Top Group", value: titleize(result.root_causes.top_driver_group), copy: "highest impact driver group" },
+          { label: "Preventable Rate", value: `${fmt(result.root_causes.preventable_contact_rate * 100, 1)}%`, copy: "share of contacts marked preventable" },
+          { label: "Top Driver", value: titleize(result.root_causes.top_contact_driver), copy: "current highlighted contact driver" },
+          { label: "Preventable CO2e", value: kg(result.root_causes.co2e_from_preventable_drivers_kg), copy: "avoidable demand footprint" }
+        ].map((item) => `
+          <div class="metric">
+            <div class="metric-label">${item.label}</div>
+            <div class="metric-value">${item.value}</div>
+            <div class="metric-copy">${item.copy}</div>
+          </div>
+        `).join("");
+        return;
+      }
+
+      const channelActivation = getSummaryChannelActivation(targetSection);
+      const channels = result.overview_by_channel.filter((item) => channelActivation[item.channel]);
+      const totalKg = channels.reduce((sum, item) => sum + item.estimated_co2e_kg, 0);
+      const totalResolved = channels.reduce((sum, item) => sum + item.resolved_cases, 0);
+      const avoidedKg = (channelActivation.chatbot ? result.chatbot.net_avoided_co2e_kg : 0)
+        + (channelActivation.voice_bot ? result.voice_bot.co2e_avoided_by_voice_bot_resolution_kg : 0);
+      const top = [...channels].sort((a, b) => b.estimated_co2e_kg - a.estimated_co2e_kg)[0];
+
+      document.getElementById("boundary-label").textContent = state.boundary === "interaction" ? "Provider + customer" : "Provider-side";
+      document.getElementById("summary-total").textContent = kg(totalKg);
+      document.getElementById("summary-copy").textContent = channels.length
+        ? `${fmt(totalResolved)} resolved cases across ${channels.length} active channel${channels.length > 1 ? "s" : ""} with ${grams(totalResolved ? (totalKg / totalResolved) * 1000 : 0)} per resolution.`
+        : "No active channel inputs yet. Load defaults or fill one section and calculate.";
+      document.getElementById("metric-per-resolution").textContent = grams(totalResolved ? (totalKg / totalResolved) * 1000 : 0);
+      document.getElementById("metric-avoided").textContent = kg(avoidedKg);
+      document.getElementById("metric-top-channel").textContent = top ? titleize(top.channel) : "n/a";
+      document.getElementById("metric-top-copy").textContent = top ? `${kg(top.estimated_co2e_kg)} currently comes from ${titleize(top.channel)}.` : "Waiting for channel totals.";
+
+      const maxValue = Math.max(...channels.map((item) => item.estimated_co2e_kg), 1);
+      document.getElementById("channel-bars").innerHTML = channels.length ? channels.map((item) => {
+        const width = Math.max((item.estimated_co2e_kg / maxValue) * 100, 2);
+        const cls = item.channel === "voice_bot" ? "voice" : item.channel;
+        return `
+          <div class="bar-card">
+            <div class="bar-top">
+              <span>${titleize(item.channel)}</span>
+              <strong>${kg(item.estimated_co2e_kg)}</strong>
+            </div>
+            <div class="bar-track"><div class="bar-fill ${cls}" style="width:${width}%"></div></div>
+          </div>
+        `;
+      }).join("") : `<div class="metric"><div class="metric-label">No active channels</div><div class="metric-copy">Use one channel section on its own or calculate all after filling multiple sections.</div></div>`;
+
+      const drivers = [
+        { label: "Queue time", value: channelActivation.call ? result.calls.co2e_from_queue_time_kg : 0, copy: "avoidable waiting load in calls" },
+        { label: "Reopen loops", value: channelActivation.email ? result.email.co2e_from_reopened_email_cases_kg : 0, copy: "extra handling in email" },
+        { label: "Preventable demand", value: targetSection === "root_causes" || targetSection == null ? result.root_causes.co2e_from_preventable_drivers_kg : 0, copy: "driver groups marked preventable" },
+        { label: "CO2e / Agent", value: targetSection === "cases_workforce" || targetSection == null ? result.workforce.co2e_per_agent_kg : 0, copy: `${fmt(result.workforce.active_agent_count)} active agents in scope` }
+      ];
+
+      document.getElementById("driver-list").innerHTML = drivers.map((item) => `
+        <div class="metric">
+          <div class="metric-label">${item.label}</div>
+          <div class="metric-value">${kg(item.value)}</div>
+          <div class="metric-copy">${item.copy}</div>
+        </div>
+      `).join("");
+    }
+
+    function validateState(state, activeSections) {
+      const warnings = [];
+      const hasAnyChannel = activeSections.calls || activeSections.email || activeSections.chatbot || activeSections.voice;
+
+      if (activeSections.calls) {
+        const total = state.calls.call_aht_min + state.calls.call_queue_min + state.calls.call_hold_min;
+        if (total > 60) {
+          warnings.push({ code: "call_total_time_exceeds_60min", section: "calls", message: `AHT + queue + hold = ${total.toFixed(1)} min — exceeds 60 min per call.` });
+        }
+      }
+
+      if (activeSections.email) {
+        if (state.email.email_resolved > state.email.email_received) {
+          warnings.push({ code: "email_resolved_exceeds_received", section: "email", message: `Resolved cases (${state.email.email_resolved.toLocaleString()}) exceed received emails (${state.email.email_received.toLocaleString()}).` });
+        }
+      }
+
+      if (activeSections.chatbot) {
+        const chatbotSubtotal = state.chatbot.chatbot_resolved_sessions + state.chatbot.chatbot_escalated_sessions + state.chatbot.chatbot_abandoned_sessions;
+        if (chatbotSubtotal > state.chatbot.chatbot_sessions) {
+          warnings.push({ code: "chatbot_totals_exceed_sessions", section: "chatbot", message: `Resolved + escalated + abandoned (${chatbotSubtotal.toLocaleString()}) exceed total sessions (${state.chatbot.chatbot_sessions.toLocaleString()}).` });
+        }
+      }
+
+      if (activeSections.voice) {
+        if (state.voice.voice_transferred_sessions > state.voice.voice_sessions) {
+          warnings.push({ code: "voice_transferred_exceeds_sessions", section: "voice", message: `Transferred sessions (${state.voice.voice_transferred_sessions.toLocaleString()}) exceed total voice sessions (${state.voice.voice_sessions.toLocaleString()}).` });
+        }
+      }
+
+      if (activeSections.cases_workforce && !hasAnyChannel) {
+        warnings.push({ code: "workforce_without_channel_data", section: "cases_workforce", message: "Cases and workforce calculated from demo defaults — no channel inputs are active." });
+      }
+
+      if (activeSections.root_causes && !hasAnyChannel) {
+        warnings.push({ code: "root_causes_without_channel_data", section: "root_causes", message: "Root causes calculated from demo defaults — no channel inputs are active." });
+      }
+
+      return warnings;
+    }
+
+    function renderWarnings(warnings) {
+      const container = document.getElementById("warn-list");
+      if (warnings.length === 0) {
+        container.innerHTML = `<div class="warn-none">No issues detected.</div>`;
+        return;
+      }
+      container.innerHTML = `<div class="warn-banner">${warnings.map((w) => `
+        <div class="warn-item">
+          <div class="warn-item-dot"></div>
+          <div>${w.message}</div>
+        </div>
+      `).join("")}</div>`;
+    }
+
+    function buildAnnotatedResult(result, warnings) {
+      const activeSections = getActiveSections();
+      const sectionsWithData = Object.entries(activeSections).filter(([, v]) => v).map(([k]) => k);
+      return {
+        ...result,
+        data_quality: {
+          sections_with_user_data: sectionsWithData,
+          warnings: warnings.map((w) => ({ code: w.code, section: w.section, message: w.message }))
+        }
+      };
+    }
+
+    function renderJson(result) {
+      document.getElementById("result-json").textContent = JSON.stringify(result, null, 2);
+    }
+
+    function renderSectionResult(section, items) {
+      const target = document.getElementById(`results-${section}`);
+      if (!target) return;
+      target.innerHTML = items.map((item) => `
+        <div class="section-result">
+          <div class="section-result-label">${item.label}</div>
+          <div class="section-result-value">${item.value}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderSectionSummaries(result) {
+      const activeSections = getActiveSections();
+      renderSectionResult("assumptions", [
+        { label: "Boundary", value: state.boundary === "interaction" ? "Provider + customer" : "Provider-side" },
+        { label: "Grid Factor", value: `${fmt(state.assumptions.grid_factor, 3)} kg/kWh` },
+        { label: "LLM Turn", value: `${fmt(state.assumptions.llm_kwh_per_turn, 4)} kWh` }
+      ]);
+
+      renderSectionResult("calls", [
+        {
+          label: activeSections.calls && !state.calls.call_resolved && state.calls.call_callback_retry_attempts ? "CO2e / Callback Retry" : "CO2e / Call",
+          value: activeSections.calls
+            ? grams(!state.calls.call_resolved && state.calls.call_callback_retry_attempts ? result.calls.co2e_per_callback_retry_g : result.calls.co2e_per_call_g)
+            : "n/a"
+        },
+        {
+          label: activeSections.calls && !state.calls.call_resolved && state.calls.call_callback_retry_attempts ? "Callback Retry CO2e" : "Queue CO2e",
+          value: activeSections.calls
+            ? kg(!state.calls.call_resolved && state.calls.call_callback_retry_attempts ? result.calls.co2e_from_callback_retries_kg : result.calls.co2e_from_queue_time_kg)
+            : "n/a"
+        },
+        { label: "Total Calls CO2e", value: activeSections.calls ? kg(result.calls.estimated_total_co2e_kg) : "n/a" }
+      ]);
+
+      renderSectionResult("email", [
+        { label: "Total Email CO2e", value: activeSections.email ? kg(result.email.estimated_total_co2e_kg) : "n/a" },
+        { label: "CO2e / Email", value: activeSections.email ? grams(result.email.co2e_per_email_g) : "n/a" },
+        { label: "Backlog CO2e", value: activeSections.email ? kg(result.email.co2e_from_unresolved_backlog_kg) : "n/a" },
+        { label: "Reopen CO2e", value: activeSections.email ? kg(result.email.co2e_from_reopened_email_cases_kg) : "n/a" }
+      ]);
+
+      renderSectionResult("chatbot", [
+        { label: "CO2e / Session", value: activeSections.chatbot ? grams(result.chatbot.co2e_per_chatbot_session_g) : "n/a" },
+        { label: "CO2e / Resolution", value: activeSections.chatbot ? grams(result.chatbot.co2e_per_chatbot_resolution_g) : "n/a" },
+        { label: "Containment", value: activeSections.chatbot ? `${fmt(result.chatbot.bot_containment_rate * 100, 1)}%` : "n/a" },
+        { label: "Total Chatbot CO2e", value: activeSections.chatbot ? kg(result.chatbot.estimated_total_co2e_kg) : "n/a" }
+      ]);
+
+      renderSectionResult("voice", [
+        { label: "CO2e / Voice Session", value: activeSections.voice ? grams(result.voice_bot.co2e_per_voice_bot_session_g) : "n/a" },
+        { label: "Retry CO2e", value: activeSections.voice ? kg(result.voice_bot.co2e_from_retry_loops_kg) : "n/a" },
+        { label: "Total Voice CO2e", value: activeSections.voice ? kg(result.voice_bot.estimated_total_co2e_kg) : "n/a" }
+      ]);
+
+      renderSectionResult("cases_workforce", [
+        { label: "Cases Created", value: activeSections.cases_workforce ? fmt(result.cases.cases_created) : "n/a" },
+        { label: "FCR", value: activeSections.cases_workforce ? `${fmt(result.cases.fcr * 100, 1)}%` : "n/a" },
+        { label: "Occupancy", value: activeSections.cases_workforce ? `${fmt(result.workforce.occupancy_rate * 100, 1)}%` : "n/a" },
+        { label: "Cases / Agent", value: activeSections.cases_workforce ? fmt(result.workforce.cases_per_agent, 1) : "n/a" },
+        { label: "CO2e / Agent", value: activeSections.cases_workforce ? kg(result.workforce.co2e_per_agent_kg) : "n/a" },
+        { label: "Repeat Contact CO2e", value: activeSections.cases_workforce ? kg(result.cases.co2e_from_repeat_contacts_kg) : "n/a" }
+      ]);
+
+      renderSectionResult("root_causes", [
+        { label: "Top Group", value: activeSections.root_causes ? titleize(result.root_causes.top_driver_group) : "n/a" },
+        { label: "Preventable CO2e", value: activeSections.root_causes ? kg(result.root_causes.co2e_from_preventable_drivers_kg) : "n/a" },
+        { label: "Preventable Rate", value: activeSections.root_causes ? `${fmt(result.root_causes.preventable_contact_rate * 100, 1)}%` : "n/a" },
+        { label: "Top Driver", value: activeSections.root_causes ? titleize(result.root_causes.top_contact_driver) : "n/a" }
+      ]);
+    }
+
+    function recalculate(targetSection = null) {
+      syncStateFromInputs();
+      const activeSections = getActiveSections();
+      latestResult = calculateResults(buildCalculationState(targetSection));
+      const warnings = validateState(state, activeSections);
+      latestAnnotatedResult = buildAnnotatedResult(latestResult, warnings);
+      renderSummary(latestResult, targetSection);
+      renderSectionSummaries(latestResult);
+      renderWarnings(warnings);
+      renderJson(latestAnnotatedResult);
+      document.getElementById("calc-stamp").textContent = `Calculated at ${new Date().toLocaleTimeString()}`;
+    }
+
+    function getRecalculateSection(fieldId = null) {
+      const fieldSection = fieldId ? getSectionForField(fieldId) : null;
+      if (fieldSection) return fieldSection;
+
+      const activeSections = getActiveSections();
+      if (!activeSections.calls && !activeSections.email && !activeSections.chatbot && !activeSections.voice) {
+        if (activeSections.root_causes) return "root_causes";
+        if (activeSections.cases_workforce) return "cases_workforce";
+      }
+
+      return null;
+    }
+
+    function loadDefaults() {
+      state = cloneDefaults();
+      syncInputsFromState();
+      recalculate();
+    }
+
+    function clearAll() {
+      Object.keys(sectionFields).forEach((section) => clearSection(section));
+      state.boundary = "provider";
+      document.querySelectorAll("#boundary-toggle button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.value === state.boundary);
+      });
+      recalculate();
+    }
+
+    async function importInputs(file) {
+      if (!file) return;
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      state = mergeState(cloneDefaults(), parsed);
+      syncInputsFromState();
+      recalculate();
+    }
+
+    document.querySelectorAll("#boundary-toggle button").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.boundary = button.dataset.value;
+        document.querySelectorAll("#boundary-toggle button").forEach((candidate) => {
+          candidate.classList.toggle("active", candidate === button);
+        });
+        recalculate();
+      });
+    });
+
+    document.getElementById("reset-demo").addEventListener("click", loadDefaults);
+    document.getElementById("calculate-all").addEventListener("click", recalculate);
+    document.getElementById("clear-all").addEventListener("click", clearAll);
+    document.getElementById("jump-results").addEventListener("click", () => {
+      document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    document.getElementById("export-inputs").addEventListener("click", () => {
+      syncStateFromInputs();
+      downloadJson("customer-service-co2-inputs.json", state);
+    });
+    document.getElementById("export-results").addEventListener("click", () => {
+      downloadJson("customer-service-co2-results.json", latestAnnotatedResult);
+    });
+    document.getElementById("export-results-csv").addEventListener("click", () => {
+      downloadCsv("customer-service-co2-results.csv", buildResultCsvRows(latestResult));
+    });
+    document.getElementById("import-inputs").addEventListener("click", () => {
+      document.getElementById("input-file").click();
+    });
+    document.getElementById("input-file").addEventListener("change", async (event) => {
+      try {
+        await importInputs(event.target.files?.[0]);
+      } catch (error) {
+        window.alert(`Import failed: ${error.message}`);
+      } finally {
+        event.target.value = "";
+      }
+    });
+
+    document.querySelectorAll(".section-load").forEach((button) => {
+      button.addEventListener("click", () => {
+        applySectionDefaults(button.dataset.section);
+        recalculate(button.dataset.section);
+      });
+    });
+
+    document.querySelectorAll(".section-clear").forEach((button) => {
+      button.addEventListener("click", () => {
+        clearSection(button.dataset.section);
+        recalculate();
+      });
+    });
+
+    document.querySelectorAll(".section-calc").forEach((button) => {
+      button.addEventListener("click", () => {
+        recalculate(button.dataset.section);
+        document.getElementById(`results-${button.dataset.section}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+    });
+
+    fieldIds.forEach((id) => {
+      const element = document.getElementById(id);
+      if (!element) return;
+      const eventName = element.tagName === "SELECT" ? "change" : "input";
+      element.addEventListener(eventName, () => {
+        recalculate(getRecalculateSection(id));
+      });
+    });
+
+    loadDefaults();
+  </script>
+</body>
+</html>
