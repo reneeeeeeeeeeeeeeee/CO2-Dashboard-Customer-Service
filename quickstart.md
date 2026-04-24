@@ -23,6 +23,13 @@ These two demos serve different roles.
 - `V2` (`demo-calculator-v2.html`) is the interactive calculator. Use it if you want to test live assumptions and see calculated output change in real time.
 - `V1` (`demo-dashboard.html`) is the static reference dashboard. Use it if you want to review the product framing and KPI output structure.
 
+If you are a developer and want to understand how `V2` works technically, do not stop at the HTML demo.
+Start with:
+
+- [src/demo-calculator-v2.js](./src/demo-calculator-v2.js) for the calculation core
+- [demo/demo-calculator-v2.html](./demo/demo-calculator-v2.html) for the current self-contained demo shell
+- [scripts/calculator-tests/](./scripts/calculator-tests/) for the validation approach and current HTML-vs-`src/` coupling
+
 ## 2. Review the sample output metrics
 
 Open:

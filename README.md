@@ -208,6 +208,26 @@ Supporting demo data:
 
 The demos are not production calculators. They make the model tangible and testable.
 
+The supporting data files also serve different roles:
+
+- `sample-output-metrics.json` is the pre-calculated output used by the static `V1` dashboard demo.
+- `sample-dataset-v0.1.json` is a canonical sample dataset for schema and mapping discussion.
+- `V2` does not import either file at runtime. It calculates from its own editable demo-state inputs in the browser.
+
+**No real baseline comparison exists.** The calculator includes a `baseline_comparison` output block, but the baseline values are simulated - hardcoded offsets applied to the current period to create a plausible "before" picture for demo purposes. There is no second dataset, no historical period, and no real delta. Do not present the baseline delta figures as measured improvement.
+
+Use the calculators to:
+
+- show how assumptions change results
+- compare reporting boundaries
+- demonstrate how one channel or driver affects total estimated CO2e
+- discuss which inputs a real implementation would need
+
+`V2` also supports `Export Input JSON` and `Import Input JSON` for demo scenario roundtrips.
+Use them to save the current calculator input state and reload it later or share it with another reviewer.
+This input JSON is a demo-state format, not a stable external import schema or production integration interface.
+`Export Output JSON` is intended for inspection and discussion, not for re-import as `Input JSON`.
+
 #### Production use note
 
 `V2` should be read as two separate things:
@@ -222,7 +242,10 @@ For production use, keep the calculation logic but replace the demo shell around
 - replace the simulated baseline with real historical periods or an explicitly modeled scenario framework
 - treat the current single-file demo UI as a prototype, not as the recommended production frontend structure
 
-#### Current V2 implementation note
+The current impact values should always be presented as `estimated operational CO2 impact`.
+They are assumption-based operational estimates for decision support, not certified emissions accounting.
+
+#### Technical note for developers
 
 The current `V2` demo intentionally favors portability and inspectability over frontend modularity.
 Today, the demo keeps markup, styling, UI state, and an inline copy of the calculator logic in a single HTML file so it can be opened and reviewed as a self-contained artifact.
@@ -243,28 +266,17 @@ If `V2` is carried forward into a product, the hardening path should be:
 - split the large UI into section-level templates or components
 - separate calculation, validation, persistence, rendering, and import/export responsibilities
 
-The current impact values should always be presented as `estimated operational CO2 impact`.
-They are assumption-based operational estimates for decision support, not certified emissions accounting.
+If you are reading the repository to understand how `V2` works technically, use this order:
 
-The supporting data files also serve different roles:
+1. [src/demo-calculator-v2.js](./src/demo-calculator-v2.js) for the extracted calculation core, default state shape, and output contract
+2. [demo/demo-calculator-v2.html](./demo/demo-calculator-v2.html) for the current self-contained demo UI, including the inline demo copy of the calculator logic
+3. [scripts/calculator-tests/](./scripts/calculator-tests/) for the current validation approach and the remaining HTML-vs-`src/` coupling
 
-- `sample-output-metrics.json` is the pre-calculated output used by the static `V1` dashboard demo.
-- `sample-dataset-v0.1.json` is a canonical sample dataset for schema and mapping discussion.
-- `V2` does not import either file at runtime. It calculates from its own editable demo-state inputs in the browser.
+Current implementation caveat:
 
-**No real baseline comparison exists.** The calculator includes a `baseline_comparison` output block, but the baseline values are simulated - hardcoded offsets applied to the current period to create a plausible "before" picture for demo purposes. There is no second dataset, no historical period, and no real delta. Do not present the baseline delta figures as measured improvement.
-
-Use the calculators to:
-
-- show how assumptions change results
-- compare reporting boundaries
-- demonstrate how one channel or driver affects total estimated CO2e
-- discuss which inputs a real implementation would need
-
-`V2` also supports `Export Input JSON` and `Import Input JSON` for demo scenario roundtrips.
-Use them to save the current calculator input state and reload it later or share it with another reviewer.
-This input JSON is a demo-state format, not a stable external import schema or production integration interface.
-`Export Output JSON` is intended for inspection and discussion, not for re-import as `Input JSON`.
+- `src/demo-calculator-v2.js` is the clearest entry point if you want to understand the calculator itself
+- `demo/demo-calculator-v2.html` is the clearest entry point if you want to understand the current demo wiring and UI behavior
+- several tests still extract the inline HTML calculator at runtime, and the parity test checks that it still matches `src/demo-calculator-v2.js`
 
 ### What the demo data represents
 
