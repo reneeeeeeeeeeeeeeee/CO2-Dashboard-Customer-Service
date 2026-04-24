@@ -208,6 +208,44 @@ Supporting demo data:
 
 The demos are not production calculators. They make the model tangible and testable.
 
+#### Production use note
+
+`V2` should be read as two separate things:
+
+- a reference implementation of the calculation logic and output shape
+- a demo UI for exploring assumptions, inputs, and result storytelling
+
+For production use, keep the calculation logic but replace the demo shell around it:
+
+- move the calculator logic into a clearly versioned application module or service
+- replace demo-state imports and exports with a stable input contract, validation, persistence, and audited source mappings
+- replace the simulated baseline with real historical periods or an explicitly modeled scenario framework
+- treat the current single-file demo UI as a prototype, not as the recommended production frontend structure
+
+#### Current V2 implementation note
+
+The current `V2` demo intentionally favors portability and inspectability over frontend modularity.
+Today, the demo keeps markup, styling, UI state, and an inline copy of the calculator logic in a single HTML file so it can be opened and reviewed as a self-contained artifact.
+
+At the same time, the calculation core also exists separately in `src/`.
+This means the current demo implementation contains duplication by design for demo convenience, not because duplication is the recommended product architecture.
+
+This is acceptable for a reference demo, but it is fragile for product use because:
+
+- UI structure and calculation logic are not cleanly separated
+- styling, rendering, state management, and import/export behavior are tightly coupled
+- changes to the inline HTML script can affect test harnesses that currently inspect the demo file directly
+
+If `V2` is carried forward into a product, the hardening path should be:
+
+- use the `src/` calculator module as the single source of truth
+- move CSS out of the HTML file
+- split the large UI into section-level templates or components
+- separate calculation, validation, persistence, rendering, and import/export responsibilities
+
+The current impact values should always be presented as `estimated operational CO2 impact`.
+They are assumption-based operational estimates for decision support, not certified emissions accounting.
+
 The supporting data files also serve different roles:
 
 - `sample-output-metrics.json` is the pre-calculated output used by the static `V1` dashboard demo.
